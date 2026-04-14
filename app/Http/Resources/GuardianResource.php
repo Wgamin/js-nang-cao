@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TeacherResource extends JsonResource
+class GuardianResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,11 +16,10 @@ class TeacherResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user_id' => $this->user_id,
             'name' => $this->name,
-            'email' => $this->user?->email, // Lấy email từ bảng users
             'phone' => $this->phone,
-            'specialization' => $this->specialization,
+            'email' => $this->email,
+            'address' => $this->address,
             'created_at' => $this->created_at?->toDateTimeString(),
             'updated_at' => $this->updated_at?->toDateTimeString(),
         ];

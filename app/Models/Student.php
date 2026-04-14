@@ -10,11 +10,17 @@ class Student extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'guardian_id',
         'name',
         'dob',
         'gender',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     protected function casts(): array
     {

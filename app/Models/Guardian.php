@@ -10,11 +10,17 @@ class Guardian extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'name',
         'phone',
         'email',
         'address',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function students()
     {

@@ -26,6 +26,21 @@ class User extends Authenticatable
         'role',
     ];
 
+    public function teacher()
+    {
+        return $this->hasOne(Teacher::class);
+    }
+
+    public function guardian()
+    {
+        return $this->hasOne(Guardian::class);
+    }
+
+    public function student()
+    {
+        return $this->hasOne(Student::class);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
