@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-tint": "#0053db",
+                      "on-tertiary-fixed": "#360f00",
+                      "outline": "#737686",
+                      "inverse-primary": "#b4c5ff",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-container": "#bc4800",
+                      "primary-fixed": "#dbe1ff",
+                      "secondary-container": "#acbfff",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "on-error": "#ffffff",
+                      "inverse-surface": "#2d3133",
+                      "on-primary": "#ffffff",
+                      "surface-bright": "#f7f9fb",
+                      "on-secondary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "surface-container-high": "#e6e8ea",
+                      "secondary-fixed-dim": "#b4c5ff",
+                      "error": "#ba1a1a",
+                      "surface-variant": "#e0e3e5",
+                      "primary": "#004ac6",
+                      "on-secondary-fixed": "#00174b",
+                      "inverse-on-surface": "#eff1f3",
+                      "on-secondary-fixed-variant": "#31447b",
+                      "tertiary": "#943700",
+                      "surface-container-lowest": "#ffffff",
+                      "surface": "#f7f9fb",
+                      "on-tertiary-container": "#ffede6",
+                      "on-primary-fixed": "#00174b",
+                      "surface-dim": "#d8dadc",
+                      "tertiary-fixed": "#ffdbcd",
+                      "surface-container-highest": "#e0e3e5",
+                      "secondary-fixed": "#dbe1ff",
+                      "outline-variant": "#c3c6d7",
+                      "on-primary-container": "#eeefff",
+                      "on-background": "#191c1e",
+                      "secondary": "#495c95",
+                      "on-secondary-container": "#394c84",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "primary-container": "#2563eb",
+                      "tertiary-fixed-dim": "#ffb596",
+                      "on-surface": "#191c1e",
+                      "background": "#f7f9fb",
+                      "on-tertiary-fixed-variant": "#7d2d00",
+                      "surface-container-low": "#f2f4f6",
+                      "surface-container": "#eceef0",
+                      "on-surface-variant": "#434655"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Inter"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          },
+        }
+      </script>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- Background Layer (Simulated Class List) -->
+<div class="fixed inset-0 overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-slate-50 dark:bg-slate-950 border-r border-slate-200/50 dark:border-slate-800/50 py-6 gap-2">
+<div class="px-6 mb-8">
+<h1 class="text-lg font-black text-blue-700 dark:text-blue-400">Admin Center</h1>
+<p class="text-xs text-on-surface-variant">Hệ thống quản lý</p>
+</div>
+<nav class="flex-1 px-2 space-y-1">
+<div class="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-lg mx-2 px-4 py-3 flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="class">class</span>
+<span class="font-medium text-sm">Lớp Học</span>
+</div>
+<div class="text-slate-600 dark:text-slate-400 mx-2 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg flex items-center gap-3 transition-transform duration-200 hover:translate-x-1">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-medium text-sm">Khóa Học</span>
+</div>
+<div class="text-slate-600 dark:text-slate-400 mx-2 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg flex items-center gap-3 transition-transform duration-200 hover:translate-x-1">
+<span class="material-symbols-outlined" data-icon="person_4">person_4</span>
+<span class="font-medium text-sm">Giáo Viên</span>
+</div>
+<div class="text-slate-600 dark:text-slate-400 mx-2 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg flex items-center gap-3 transition-transform duration-200 hover:translate-x-1">
+<span class="material-symbols-outlined" data-icon="meeting_room">meeting_room</span>
+<span class="font-medium text-sm">Phòng Học</span>
+</div>
+<div class="text-slate-600 dark:text-slate-400 mx-2 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg flex items-center gap-3 transition-transform duration-200 hover:translate-x-1">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-medium text-sm">Học Viên</span>
+</div>
+</nav>
+</aside>
+<!-- Main Content Area (Blurred Background) -->
+<main class="ml-64 p-8 filter blur-sm">
+<header class="flex justify-between items-center mb-8">
+<div>
+<h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Danh sách Lớp học</h2>
+<p class="text-on-surface-variant">Quản lý các lớp học đang diễn ra và sắp khai giảng</p>
+</div>
+<button class="bg-primary text-white px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                    Thêm Lớp Mới
+                </button>
+</header>
+<!-- Bento-style Dashboard Content -->
+<div class="grid grid-cols-12 gap-6">
+<div class="col-span-8 bg-surface-container-low rounded-xl p-6 h-96"></div>
+<div class="col-span-4 bg-surface-container-low rounded-xl p-6 h-96"></div>
+</div>
+</main>
+</div>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-on-background/20 backdrop-blur-[2px]">
+<!-- Modal Card -->
+<div class="w-full max-w-2xl glass-panel rounded-xl shadow-[0px_20px_40px_rgba(0,74,198,0.08)] overflow-hidden flex flex-col max-h-[921px]">
+<!-- Modal Header -->
+<div class="px-8 py-6 flex justify-between items-center bg-surface-container-lowest/50 border-b border-outline-variant/10">
+<div>
+<h3 class="text-xl font-bold tracking-tight text-primary flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="edit_note" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+                        Thiết lập thông tin Lớp học
+                    </h3>
+<p class="text-xs text-on-surface-variant mt-0.5">Vui lòng điền đầy đủ các thông tin để quản lý lớp học hiệu quả hơn.</p>
+</div>
+<button class="text-on-surface-variant hover:bg-surface-container-high p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<!-- Modal Body (Form) -->
+<div class="p-8 overflow-y-auto custom-scrollbar">
+<form class="space-y-6">
+<!-- Top Row: Class Name -->
+<div class="grid grid-cols-1 gap-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant px-1" for="className">Tên lớp học</label>
+<input class="w-full bg-surface-container-lowest border-outline-variant/30 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-lg py-3 px-4 text-on-surface transition-all" id="className" placeholder="Nhập tên lớp học..." type="text" value="IELTS Intensive 7.5+ - T8/2024"/>
+</div>
+<!-- Second Row: Grid for Selects -->
+<div class="grid grid-cols-2 gap-6">
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant px-1">Môn học</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-lowest border-outline-variant/30 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-lg py-3 px-4 pr-10 text-on-surface transition-all">
+<option>Tiếng Anh IELTS</option>
+<option>Tiếng Anh Giao Tiếp</option>
+<option>TOEIC Cấp Tốc</option>
+<option>SAT/ACT Prep</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant px-1">Giáo viên giảng dạy</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-lowest border-outline-variant/30 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-lg py-3 px-4 pr-10 text-on-surface transition-all">
+<option>Mr. Alexander Pierce</option>
+<option>Ms. Sarah Nguyen</option>
+<option>Mr. Robert Johnson</option>
+<option>Dr. Emily White</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" data-icon="person">person</span>
+</div>
+</div>
+</div>
+<!-- Third Row: Room & Max Students -->
+<div class="grid grid-cols-2 gap-6">
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant px-1">Phòng học</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-lowest border-outline-variant/30 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-lg py-3 px-4 pr-10 text-on-surface transition-all">
+<option>Phòng 402 - Tòa A</option>
+<option>Phòng 105 - Tòa B</option>
+<option>Phòng Lab 01</option>
+<option>Hội trường C</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" data-icon="meeting_room">meeting_room</span>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant px-1">Sĩ số tối đa</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-outline-variant/30 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-lg py-3 px-4 text-on-surface transition-all" type="number" value="25"/>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-xs font-medium">Học viên</span>
+</div>
+</div>
+</div>
+<!-- Fourth Row: Tuition -->
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant px-1">Thiết lập Học phí</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-outline-variant/30 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-lg py-3 px-12 text-on-surface font-semibold text-lg transition-all" type="number" value="4500000"/>
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-primary font-bold">₫</span>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 bg-primary/10 text-primary px-2 py-1 rounded text-[10px] font-bold">VNĐ / KHÓA</span>
+</div>
+</div>
+<!-- Fifth Row: Status -->
+<div class="space-y-3">
+<label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant px-1">Trạng thái lớp</label>
+<div class="flex gap-4">
+<label class="flex-1 cursor-pointer group">
+<input class="peer hidden" name="status" type="radio" value="planned"/>
+<div class="flex flex-col items-center gap-2 p-4 rounded-xl border border-outline-variant/30 bg-surface-container-lowest peer-checked:border-primary peer-checked:bg-primary/5 transition-all group-hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-on-surface-variant peer-checked:text-primary" data-icon="event_upcoming">event_upcoming</span>
+<span class="text-sm font-semibold text-on-surface group-peer-checked:text-primary">Planned</span>
+</div>
+</label>
+<label class="flex-1 cursor-pointer group">
+<input checked="" class="peer hidden" name="status" type="radio" value="open"/>
+<div class="flex flex-col items-center gap-2 p-4 rounded-xl border border-outline-variant/30 bg-surface-container-lowest peer-checked:border-primary peer-checked:bg-primary/5 transition-all group-hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-on-surface-variant peer-checked:text-primary" data-icon="door_open">door_open</span>
+<span class="text-sm font-semibold text-on-surface group-peer-checked:text-primary">Open</span>
+</div>
+</label>
+<label class="flex-1 cursor-pointer group">
+<input class="peer hidden" name="status" type="radio" value="closed"/>
+<div class="flex flex-col items-center gap-2 p-4 rounded-xl border border-outline-variant/30 bg-surface-container-lowest peer-checked:border-primary peer-checked:bg-primary/5 transition-all group-hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-on-surface-variant peer-checked:text-primary" data-icon="lock">lock</span>
+<span class="text-sm font-semibold text-on-surface group-peer-checked:text-primary">Closed</span>
+</div>
+</label>
+</div>
+</div>
+</form>
+</div>
+<!-- Modal Footer -->
+<div class="px-8 py-6 bg-surface-container-low flex justify-end items-center gap-4">
+<button class="px-6 py-2.5 rounded-lg text-primary font-semibold hover:bg-surface-container-high transition-colors flex items-center gap-2">
+                    Hủy bỏ
+                </button>
+<button class="px-8 py-2.5 rounded-lg bg-gradient-to-r from-primary to-primary-container text-white font-bold shadow-lg shadow-primary/20 hover:opacity-90 active:scale-95 transition-all flex items-center gap-2">
+                    Lưu thông tin
+                    <span class="material-symbols-outlined text-sm" data-icon="save">save</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Decorative Image in Background (Visible through Modal backdrop) -->
+<div class="fixed top-0 right-0 -z-10 w-1/3 h-full opacity-10 pointer-events-none overflow-hidden">
+<img class="object-cover h-full w-full" data-alt="modern minimal architectural interior with clean lines soft lighting and academic atmosphere for education center background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCG_9FV26IMwoddQ-WEcGxYv-aoK1Qh_oBiWFHXmlMuFn7NwzP1XHnWV4iY2lt-04UDqrsr69ePw9AyDwebuv2bZF-GJRIxY_plHcNlVsbdlmsSPQOZjDHYGIIU1e9er-XHh4RALrvmwtcSfnKLMzPCfjPdSGezl_EhL5imR6wyAPUwVEVwY-8BAjD64CLPPX41c3as1JcJT4w0waiy7N3OH_Ki3IIoVzCmztpaVrOcdarzc_Xjp3pD4l5734tZc5qx4st6FONKYKz_"/>
+</div>
+</body></html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ScholarFlow - Thiết lập Lịch học mẫu</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-container": "#2563eb",
+                    "surface-container-lowest": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "secondary-fixed": "#dbe1ff",
+                    "on-background": "#191c1e",
+                    "surface-bright": "#f7f9fb",
+                    "surface-container-low": "#f2f4f6",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-tertiary-container": "#ffede6",
+                    "on-secondary-fixed-variant": "#31447b",
+                    "inverse-primary": "#b4c5ff",
+                    "on-error-container": "#93000a",
+                    "outline-variant": "#c3c6d7",
+                    "outline": "#737686",
+                    "on-primary-container": "#eeefff",
+                    "on-secondary-fixed": "#00174b",
+                    "on-secondary-container": "#394c84",
+                    "tertiary-fixed": "#ffdbcd",
+                    "primary": "#004ac6",
+                    "on-tertiary-fixed": "#360f00",
+                    "on-surface-variant": "#434655",
+                    "surface-variant": "#e0e3e5",
+                    "secondary": "#495c95",
+                    "background": "#f7f9fb",
+                    "secondary-container": "#acbfff",
+                    "primary-fixed": "#dbe1ff",
+                    "on-primary": "#ffffff",
+                    "on-surface": "#191c1e",
+                    "surface-tint": "#0053db",
+                    "tertiary": "#943700",
+                    "on-primary-fixed": "#00174b",
+                    "inverse-on-surface": "#eff1f3",
+                    "tertiary-container": "#bc4800",
+                    "surface-container-high": "#e6e8ea",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "surface": "#f7f9fb",
+                    "surface-dim": "#d8dadc",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "surface-container": "#eceef0",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-highest": "#e0e3e5",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "secondary-fixed-dim": "#b4c5ff",
+                    "inverse-surface": "#2d3133",
+                    "error": "#ba1a1a",
+                    "on-error": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased overflow-hidden">
+<!-- BACKGROUND: Blurred Schedule List Page -->
+<div class="fixed inset-0 flex blur-md select-none pointer-events-none scale-[1.02]">
+<!-- SideNavBar Shared Component (Visual Representation) -->
+<aside class="h-screen w-64 bg-slate-50 flex flex-col p-4 border-r-0">
+<div class="mb-8">
+<span class="text-xl font-bold tracking-tighter text-blue-700">ScholarFlow</span>
+</div>
+<nav class="space-y-1">
+<div class="flex items-center gap-3 p-3 text-slate-500"><span class="material-symbols-outlined">dashboard</span> Dashboard</div>
+<div class="flex items-center gap-3 p-3 text-slate-500"><span class="material-symbols-outlined">school</span> Students</div>
+<div class="flex items-center gap-3 p-3 bg-white text-blue-700 font-semibold shadow-sm rounded-lg"><span class="material-symbols-outlined">calendar_month</span> Schedule</div>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 p-8 bg-surface">
+<header class="flex justify-between items-center mb-8">
+<h1 class="text-3xl font-extrabold tracking-tight">Thời khóa biểu</h1>
+</header>
+<!-- Bento Grid Preview -->
+<div class="grid grid-cols-12 gap-6">
+<div class="col-span-8 bg-surface-container-lowest h-[600px] rounded-xl shadow-sm border border-outline-variant/15 p-6">
+<div class="w-full h-full bg-surface-container-low rounded-lg opacity-50"></div>
+</div>
+<div class="col-span-4 space-y-6">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/15">
+<div class="h-10 w-32 bg-primary/20 rounded mb-4"></div>
+<div class="space-y-2">
+<div class="h-4 bg-slate-200 rounded w-full"></div>
+<div class="h-4 bg-slate-200 rounded w-5/6"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/15 h-64">
+<div class="h-4 bg-slate-200 rounded w-1/2 mb-4"></div>
+<div class="flex flex-wrap gap-2">
+<div class="h-8 w-16 bg-slate-100 rounded-full"></div>
+<div class="h-8 w-20 bg-slate-100 rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- MODAL OVERLAY -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-on-surface/20 backdrop-blur-sm">
+<!-- MODAL CONTAINER -->
+<div class="relative w-full max-w-2xl bg-surface-container-lowest rounded-xl shadow-[0px_20px_40px_rgba(0,74,198,0.08)] overflow-hidden flex flex-col max-h-[921px]">
+<!-- MODAL HEADER -->
+<div class="px-8 py-6 flex items-center justify-between bg-surface-container-low">
+<div>
+<h2 class="text-xl font-bold tracking-tight text-on-surface">Thiết lập Lịch học mẫu</h2>
+<p class="text-sm text-on-surface-variant mt-1">Cấu hình thời gian học định kỳ cho lớp học</p>
+</div>
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">close</span>
+</button>
+</div>
+<!-- MODAL BODY (Scrollable) -->
+<div class="px-8 py-8 overflow-y-auto">
+<form class="space-y-8">
+<!-- CLASS SELECTION -->
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-on-surface-variant tracking-wide">CHỌN LỚP HỌC</label>
+<div class="relative">
+<select class="w-full h-12 pl-4 pr-10 bg-surface-container-lowest border border-outline-variant/50 rounded-lg appearance-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all text-on-surface">
+<option disabled="" selected="" value="">Chọn một lớp học...</option>
+<option value="1">Lớp Tiếng Anh Giao Tiếp - A1</option>
+<option value="2">Lớp Toán Tư Duy - Intermediate</option>
+<option value="3">Lớp Luyện Thi IELTS 6.5+</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<!-- DYNAMIC TIME SLOTS SECTION -->
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<label class="block text-sm font-semibold text-on-surface-variant tracking-wide uppercase">KHUNG GIỜ HỌC</label>
+<span class="text-xs text-primary font-medium px-2 py-1 bg-primary/10 rounded-full">Đang áp dụng 2 buổi/tuần</span>
+</div>
+<div class="space-y-4">
+<!-- Slot Row 1 -->
+<div class="grid grid-cols-12 gap-4 items-end p-4 rounded-xl bg-surface-container-low border-l-4 border-primary">
+<div class="col-span-4 space-y-2">
+<label class="block text-[10px] font-bold text-on-surface-variant/70 uppercase">Thứ trong tuần</label>
+<select class="w-full h-10 px-3 bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm focus:border-primary focus:ring-0">
+<option>Thứ Hai</option>
+<option>Thứ Ba</option>
+<option selected="">Thứ Tư</option>
+<option>Thứ Năm</option>
+<option>Thứ Sáu</option>
+<option>Thứ Bảy</option>
+<option>Chủ Nhật</option>
+</select>
+</div>
+<div class="col-span-3 space-y-2">
+<label class="block text-[10px] font-bold text-on-surface-variant/70 uppercase">Bắt đầu</label>
+<input class="w-full h-10 px-3 bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm focus:border-primary focus:ring-0" type="time" value="14:00"/>
+</div>
+<div class="col-span-3 space-y-2">
+<label class="block text-[10px] font-bold text-on-surface-variant/70 uppercase">Kết thúc</label>
+<input class="w-full h-10 px-3 bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm focus:border-primary focus:ring-0" type="time" value="16:00"/>
+</div>
+<div class="col-span-2 flex justify-end">
+<button class="p-2 text-error hover:bg-error-container/20 rounded-lg transition-colors" type="button">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+<!-- Slot Row 2 -->
+<div class="grid grid-cols-12 gap-4 items-end p-4 rounded-xl bg-surface-container-low border-l-4 border-primary">
+<div class="col-span-4 space-y-2">
+<label class="block text-[10px] font-bold text-on-surface-variant/70 uppercase">Thứ trong tuần</label>
+<select class="w-full h-10 px-3 bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm focus:border-primary focus:ring-0">
+<option>Thứ Hai</option>
+<option>Thứ Ba</option>
+<option>Thứ Tư</option>
+<option>Thứ Năm</option>
+<option selected="">Thứ Sáu</option>
+<option>Thứ Bảy</option>
+<option>Chủ Nhật</option>
+</select>
+</div>
+<div class="col-span-3 space-y-2">
+<label class="block text-[10px] font-bold text-on-surface-variant/70 uppercase">Bắt đầu</label>
+<input class="w-full h-10 px-3 bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm focus:border-primary focus:ring-0" type="time" value="09:30"/>
+</div>
+<div class="col-span-3 space-y-2">
+<label class="block text-[10px] font-bold text-on-surface-variant/70 uppercase">Kết thúc</label>
+<input class="w-full h-10 px-3 bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-sm focus:border-primary focus:ring-0" type="time" value="11:30"/>
+</div>
+<div class="col-span-2 flex justify-end">
+<button class="p-2 text-error hover:bg-error-container/20 rounded-lg transition-colors" type="button">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Add Button -->
+<button class="group flex items-center justify-center w-full py-4 border-2 border-dashed border-outline-variant/30 rounded-xl hover:border-primary/50 hover:bg-primary/5 transition-all text-on-surface-variant hover:text-primary font-medium" type="button">
+<span class="material-symbols-outlined mr-2">add_circle</span>
+                            + Thêm khung giờ
+                        </button>
+</div>
+<!-- PREVIEW HINT -->
+<div class="bg-primary/5 rounded-xl p-4 flex gap-4 items-start border border-primary/10">
+<span class="material-symbols-outlined text-primary mt-0.5">info</span>
+<div class="text-xs text-primary-container leading-relaxed">
+                            Lưu ý: Lịch học mẫu sẽ được áp dụng cho toàn bộ các tuần học trong khóa học hiện tại của lớp đã chọn. Bạn có thể điều chỉnh từng buổi lẻ sau khi lưu.
+                        </div>
+</div>
+</form>
+</div>
+<!-- MODAL FOOTER -->
+<div class="px-8 py-6 bg-surface-container border-t border-outline-variant/10 flex justify-end gap-3">
+<button class="px-6 py-2.5 rounded-lg font-semibold text-on-surface-variant bg-surface-container-high hover:bg-surface-variant transition-colors">
+                    Hủy bỏ
+                </button>
+<button class="px-8 py-2.5 rounded-lg font-semibold text-white bg-gradient-to-r from-primary to-primary-container shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all">
+                    Lưu thông tin
+                </button>
+</div>
+</div>
+</div>
+<!-- FLOATING DECORATION (Subtle Blur Elements for Depth) -->
+<div class="fixed top-20 right-20 w-64 h-64 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="fixed bottom-20 left-20 w-96 h-96 bg-tertiary/5 rounded-full blur-[120px] pointer-events-none"></div>
+</body></html>
