@@ -117,7 +117,7 @@ const spotlight = {
         <div class="classes-card">
           <div class="card-header c-header">
             <h3>Lớp sắp diễn ra</h3>
-            <a href="#" class="see-all">Xem tất cả</a>
+            <router-link to="/admin/schedules" class="see-all">Xem tất cả</router-link>
           </div>
           <div class="class-list">
             <div v-for="c in upcomingClasses" :key="c.code" class="class-item">
