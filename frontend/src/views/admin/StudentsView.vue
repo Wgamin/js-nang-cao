@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
+// --- State ---
 const students = ref([
   { id: 1, name: 'Nguyễn Văn Hoàng', initials: 'NH', avatarColor: 'blue', email: 'hoang.nv@gmail.com', code: 'STD-2024-001', status: 'Đang học', statusClass: 'success', class: 'IELTS Foundation - K24', parent: 'Nguyễn Văn Hùng' },
   { id: 2, name: 'Phạm Minh Tú', initials: 'MT', avatarColor: 'orange', email: 'minhtu.pham@gmail.com', code: 'STD-2024-042', status: 'Bảo lưu', statusClass: 'warning', class: 'Toeic 650+ T01', parent: 'Lê Thị Mai' },
@@ -8,12 +9,94 @@ const students = ref([
   { id: 4, name: 'Lê Duy Kiên', initials: 'DK', avatarColor: 'indigo', email: 'duykien.le@gmail.com', code: 'STD-2024-115', status: 'Đang học', statusClass: 'success', class: 'IELTS Intensive - K10', parent: 'Lê Duy Mạnh' },
 ])
 
-const quickStats = [
-  { label: 'Tổng học viên', value: '1,280', icon: 'group', color: '#1d4ed8', bg: 'rgba(29,78,216,0.1)' },
-  { label: 'Đang hoạt động', value: '942', icon: 'verified_user', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
-  { label: 'Đang bảo lưu', value: '86', icon: 'pause_circle', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
-  { label: 'Đã thôi học', value: '252', icon: 'cancel', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
-]
+const searchQuery = ref('')
+const statusFilter = ref('')
+const isModalOpen = ref(false)
+const isEditing = ref(false)
+
+const initialStudent = {
+  id: null,
+  name: '',
+  email: '',
+  code: '',
+  class: 'Chưa xếp lớp',
+  parent: '',
+  status: 'Đang học',
+  statusClass: 'success',
+  avatarColor: 'blue'
+}
+
+const currentStudent = ref({ ...initialStudent })
+
+// --- Computed ---
+const filteredStudents = computed(() => {
+  return students.value.filter(s => {
+    const matchesSearch = s.name.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
+                         s.code.toLowerCase().includes(searchQuery.value.toLowerCase())
+    const matchesStatus = !statusFilter.value || s.status === statusFilter.value
+    return matchesSearch && matchesStatus
+  })
+})
+
+const quickStats = computed(() => [
+  { label: 'Tổng học viên', value: students.value.length, icon: 'group', color: '#1d4ed8', bg: 'rgba(29,78,216,0.1)' },
+  { label: 'Đang hoạt động', value: students.value.filter(s => s.status === 'Đang học').length, icon: 'verified_user', color: '#10b981', bg: 'rgba(16,185,129,0.1)' },
+  { label: 'Đang bảo lưu', value: students.value.filter(s => s.status === 'Bảo lưu').length, icon: 'pause_circle', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+  { label: 'Đã thôi học', value: students.value.filter(s => s.status === 'Nghỉ học').length, icon: 'cancel', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+])
+
+// --- Actions ---
+function openAddModal() {
+  isEditing.value = false
+  currentStudent.value = { ...initialStudent, code: `STD-${new Date().getFullYear()}-${String(students.value.length + 1).padStart(3, '0')}` }
+  isModalOpen.value = true
+}
+
+function openEditModal(student) {
+  isEditing.value = true
+  currentStudent.value = { ...student }
+  isModalOpen.value = true
+}
+
+function closeModal() {
+  isModalOpen.value = false
+}
+
+function saveStudent() {
+  if (isEditing.value) {
+    const index = students.value.findIndex(s => s.id === currentStudent.value.id)
+    if (index !== -1) {
+      students.value[index] = { ...currentStudent.value }
+    }
+  } else {
+    const newId = students.value.length ? Math.max(...students.value.map(s => s.id)) + 1 : 1
+    const nameParts = currentStudent.value.name.split(' ')
+    const initials = nameParts.length > 1 ? nameParts[0][0] + nameParts[nameParts.length - 1][0] : nameParts[0][0]
+    
+    students.value.push({
+      ...currentStudent.value,
+      id: newId,
+      initials: initials.toUpperCase(),
+      avatarColor: ['blue', 'orange', 'rose', 'indigo'][Math.floor(Math.random() * 4)]
+    })
+  }
+  closeModal()
+}
+
+function deleteStudent(id) {
+  if (confirm('Bạn có chắc chắn muốn xóa học viên này? Thao tác này không thể hoàn tác.')) {
+    students.value = students.value.filter(s => s.id !== id)
+  }
+}
+
+function handleStatusChange(e) {
+  const statusMap = {
+    'Đang học': 'success',
+    'Bảo lưu': 'warning',
+    'Nghỉ học': 'danger'
+  }
+  currentStudent.value.statusClass = statusMap[e.target.value] || 'success'
+}
 </script>
 
 <template>
@@ -23,7 +106,7 @@ const quickStats = [
         <h1 class="page-title">Quản lý Học viên</h1>
         <p class="page-subtitle">Hệ thống quản lý thông tin và hồ sơ học viên</p>
       </div>
-      <button class="btn-primary">
+      <button class="btn-primary" @click="openAddModal">
         <span class="material-symbols-outlined">add</span>
         Thêm Học viên
       </button>
@@ -49,11 +132,16 @@ const quickStats = [
         <div class="filter-group">
           <div class="search-box">
             <span class="material-symbols-outlined search-icon">search</span>
-            <input type="text" class="search-input" placeholder="Tìm kiếm theo mã, tên..." />
+            <input 
+              v-model="searchQuery" 
+              type="text" 
+              class="search-input" 
+              placeholder="Tìm kiếm theo mã, tên..." 
+            />
           </div>
           
           <div class="select-box">
-            <select class="form-select">
+            <select v-model="statusFilter" class="form-select">
               <option value="">Tất cả trạng thái</option>
               <option value="Đang học">Đang học</option>
               <option value="Bảo lưu">Bảo lưu</option>
@@ -65,10 +153,6 @@ const quickStats = [
 
         <!-- Export / Utility -->
         <div class="action-group">
-          <button class="btn-secondary">
-            <span class="material-symbols-outlined">filter_list</span>
-            Bộ lọc
-          </button>
           <button class="btn-secondary">
             <span class="material-symbols-outlined">download</span>
             Xuất file
@@ -89,8 +173,8 @@ const quickStats = [
               <th class="text-right">THAO TÁC</th>
             </tr>
           </thead>
-          <tbody>
-            <tr v-for="student in students" :key="student.id">
+          <transition-group name="list" tag="tbody">
+            <tr v-for="student in filteredStudents" :key="student.id">
               <td>
                 <div class="user-cell">
                   <div class="avatar" :class="'avatar-' + student.avatarColor">{{ student.initials }}</div>
@@ -107,30 +191,86 @@ const quickStats = [
                 <span class="badge" :class="'badge-' + student.statusClass">{{ student.status }}</span>
               </td>
               <td class="text-right">
-                <button class="icon-btn" title="Chỉnh sửa">
+                <button class="icon-btn" title="Chỉnh sửa" @click="openEditModal(student)">
                   <span class="material-symbols-outlined">edit</span>
                 </button>
-                <button class="icon-btn icon-danger" title="Xóa">
+                <button class="icon-btn icon-danger" title="Xóa" @click="deleteStudent(student.id)">
                   <span class="material-symbols-outlined">delete</span>
                 </button>
               </td>
             </tr>
-          </tbody>
+            <tr v-if="filteredStudents.length === 0">
+              <td colspan="6" class="empty-state">
+                Không tìm thấy học viên nào phù hợp.
+              </td>
+            </tr>
+          </transition-group>
         </table>
       </div>
 
       <!-- Pagination -->
       <div class="pagination-footer">
-        <span class="page-info">Hiển thị 1 - 4 trên 42 học viên</span>
-        <div class="pagination">
-          <button class="page-btn"><span class="material-symbols-outlined">chevron_left</span></button>
-          <button class="page-btn active">1</button>
-          <button class="page-btn">2</button>
-          <button class="page-btn">3</button>
-          <button class="page-btn"><span class="material-symbols-outlined">chevron_right</span></button>
-        </div>
+        <span class="page-info">Hiển thị {{ filteredStudents.length }} trên {{ students.length }} học viên</span>
       </div>
     </div>
+
+    <!-- Add/Edit Modal -->
+    <Transition name="modal">
+      <div v-if="isModalOpen" class="modal-overlay" @click.self="closeModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>{{ isEditing ? 'Chỉnh sửa Học viên' : 'Thêm Học viên mới' }}</h3>
+            <button class="close-btn" @click="closeModal">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <form @submit.prevent="saveStudent">
+            <div class="modal-body">
+              <div class="form-row">
+                <div class="form-item">
+                  <label>Họ và tên</label>
+                  <input v-model="currentStudent.name" type="text" placeholder="Ví dụ: Nguyễn Văn A" required />
+                </div>
+                <div class="form-item">
+                  <label>Mã học viên</label>
+                  <input v-model="currentStudent.code" type="text" readonly disabled />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-item">
+                  <label>Email</label>
+                  <input v-model="currentStudent.email" type="email" placeholder="email@example.com" required />
+                </div>
+                <div class="form-item">
+                  <label>Phụ huynh</label>
+                  <input v-model="currentStudent.parent" type="text" placeholder="Tên phụ huynh" required />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-item">
+                  <label>Lớp học hiện tại</label>
+                  <input v-model="currentStudent.class" type="text" placeholder="Tên lớp học" />
+                </div>
+                <div class="form-item">
+                  <label>Trạng thái</label>
+                  <select v-model="currentStudent.status" @change="handleStatusChange">
+                    <option value="Đang học">Đang học</option>
+                    <option value="Bảo lưu">Bảo lưu</option>
+                    <option value="Nghỉ học">Nghỉ học</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn-cancel" @click="closeModal">Hủy bỏ</button>
+              <button type="submit" class="btn-submit">
+                {{ isEditing ? 'Cập nhật' : 'Thêm mới' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -177,12 +317,13 @@ const quickStats = [
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
   box-shadow: 0 4px 6px -1px rgba(29, 78, 216, 0.2);
 }
 
 .btn-primary:hover {
   background-color: #1e40af;
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
@@ -243,7 +384,7 @@ const quickStats = [
 }
 
 .stat-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
@@ -329,24 +470,6 @@ const quickStats = [
   border-color: #cbd5e1;
 }
 
-.form-select:focus {
-  border-color: #1d4ed8;
-}
-
-.select-icon {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #94a3b8;
-  pointer-events: none;
-}
-
-.action-group {
-  display: flex;
-  gap: 12px;
-}
-
 /* Table */
 .table-responsive {
   width: 100%;
@@ -374,10 +497,6 @@ const quickStats = [
   padding: 16px 24px;
   border-bottom: 1px solid #f1f5f9;
   vertical-align: middle;
-}
-
-.data-table tr:last-child td {
-  border-bottom: none;
 }
 
 .data-table tr:hover td {
@@ -467,51 +586,132 @@ const quickStats = [
   color: #ef4444;
 }
 
-/* Pagination */
-.pagination-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-top: 1px solid #f1f5f9;
-  background-color: #ffffff;
-}
-
-.page-info {
-  font-size: 13px;
-  font-weight: 500;
+.empty-state {
+  text-align: center;
+  padding: 40px !important;
   color: #64748b;
+  font-style: italic;
 }
 
-.pagination {
-  display: flex;
-  gap: 4px;
-}
-
-.page-btn {
-  min-width: 36px;
-  height: 36px;
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #e2e8f0;
-  background-color: #ffffff;
-  color: #475569;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 13px;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: white;
+  width: 100%;
+  max-width: 600px;
+  border-radius: 20px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.close-btn {
+  background: none;
+  border: none;
   cursor: pointer;
-  transition: all 0.2s;
+  color: #94a3b8;
+  display: flex;
 }
 
-.page-btn:hover {
-  background-color: #f8fafc;
-  border-color: #cbd5e1;
+.modal-body {
+  padding: 24px;
 }
 
-.page-btn.active {
-  background-color: #1d4ed8;
-  color: #ffffff;
+.form-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.form-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-item label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.form-item input, .form-item select {
+  padding: 10px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 14px;
+  outline: none;
+}
+
+.form-item input:focus, .form-item select:focus {
   border-color: #1d4ed8;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+}
+
+.modal-footer {
+  padding: 20px 24px;
+  background-color: #f8fafc;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-cancel {
+  padding: 10px 20px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+}
+
+.btn-submit {
+  padding: 10px 24px;
+  background-color: #1d4ed8;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+}
+
+/* Animations */
+.modal-enter-active, .modal-leave-active { transition: opacity 0.3s ease; }
+.modal-enter-from, .modal-leave-to { opacity: 0; }
+
+.list-enter-active, .list-leave-active { transition: all 0.4s ease; }
+.list-enter-from, .list-leave-to { opacity: 0; transform: translateX(30px); }
+
+.pagination-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #f1f5f9;
 }
 </style>

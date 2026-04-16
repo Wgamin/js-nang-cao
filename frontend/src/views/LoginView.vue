@@ -1,37 +1,55 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '@/utils/api'
 
 const router = useRouter()
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
 const rememberLogin = ref(false)
+const isLoading = ref(false)
+const errorMessage = ref('')
 
-const handleLogin = () => {
-    // Basic mock navigation to admin dashboard
-    if (email.value && password.value) {
-        router.push('/admin/dashboard')
+const handleLogin = async () => {
+    isLoading.value = true;
+    errorMessage.value = '';
+    
+    try {
+        if (email.value && password.value) {
+            // Giả lập xử lý đăng nhập
+            setTimeout(() => {
+                router.push('/admin/dashboard')
+                isLoading.value = false;
+            }, 800);
+        } else {
+            errorMessage.value = 'Vui lòng điền đầy đủ thông tin.'
+            isLoading.value = false;
+        }
+    } catch (error) {
+        errorMessage.value = 'Tài khoản hoặc mật khẩu không chính xác.'
+        isLoading.value = false;
     }
 }
 </script>
 
 <template>
-  <div class="login-page">
+  <div class="login-wrapper">
     <!-- Background Decoration -->
-    <div class="bg-decorations">
-      <div class="decor-circle circle-1"></div>
-      <div class="decor-circle circle-2"></div>
+    <div class="background-decor">
+      <div class="blur-circle circle-1"></div>
+      <div class="blur-circle circle-2"></div>
     </div>
 
+    <!-- Main Container -->
     <main class="login-container">
       <!-- Logo & Branding -->
-      <div class="brand-header">
-        <div class="logo-box">
-          <span class="material-symbols-outlined logo-icon">school</span>
+      <div class="branding">
+        <div class="logo-icon-box">
+          <span class="material-symbols-outlined">school</span>
         </div>
-        <h1 class="brand-name">EduManager</h1>
-        <p class="brand-slogan">Hệ thống quản lý trung tâm giáo dục</p>
+        <h1 class="brand-title">EduManager</h1>
+        <p class="brand-subtitle">Hệ thống quản lý trung tâm giáo dục</p>
       </div>
 
       <!-- Login Card -->
@@ -42,71 +60,88 @@ const handleLogin = () => {
         </div>
 
         <form class="login-form" @submit.prevent="handleLogin">
-          <!-- Email -->
+          <div v-if="errorMessage" class="error-alert">
+            {{ errorMessage }}
+          </div>
+
+          <!-- Email Input -->
           <div class="form-group">
             <label for="email">Địa chỉ Email</label>
-            <div class="input-wrapper">
+            <div class="input-container">
               <span class="material-symbols-outlined input-icon">mail</span>
               <input 
-                type="email" 
                 id="email" 
-                v-model="email" 
+                v-model="email"
+                type="email" 
                 placeholder="username@email.com" 
                 required 
               />
             </div>
           </div>
 
-          <!-- Password -->
+          <!-- Password Input -->
           <div class="form-group">
-            <div class="label-row">
+            <div class="label-flex">
               <label for="password">Mật khẩu</label>
               <a href="#" class="forgot-link">Quên mật khẩu?</a>
             </div>
-            <div class="input-wrapper">
+            <div class="input-container">
               <span class="material-symbols-outlined input-icon">lock</span>
               <input 
-                :type="showPassword ? 'text' : 'password'" 
                 id="password" 
-                v-model="password" 
+                v-model="password"
+                :type="showPassword ? 'text' : 'password'" 
                 placeholder="••••••••" 
                 required 
               />
               <button 
                 type="button" 
-                class="btn-toggle-pass" 
+                class="toggle-password" 
                 @click="showPassword = !showPassword"
               >
-                <span class="material-symbols-outlined input-icon">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+                <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
               </button>
             </div>
           </div>
 
           <!-- Remember Me -->
-          <div class="remember-row">
-             <input type="checkbox" id="remember" v-model="rememberLogin" />
-             <label for="remember">Ghi nhớ đăng nhập</label>
+          <div class="remember-me">
+            <input 
+              id="remember" 
+              v-model="rememberLogin"
+              type="checkbox"
+            />
+            <label for="remember">Ghi nhớ đăng nhập</label>
           </div>
 
-          <!-- Submit -->
-          <button type="submit" class="btn-submit">
-             Đăng nhập
+          <!-- Login Button -->
+          <button 
+            type="submit" 
+            class="submit-btn"
+            :disabled="isLoading"
+          >
+            <span v-if="isLoading" class="material-symbols-outlined spinner">progress_activity</span>
+            {{ isLoading ? 'Đang đăng nhập...' : 'Đăng nhập' }}
           </button>
         </form>
 
+        <!-- Bottom Action -->
         <div class="card-footer">
-           <p>Chưa có tài khoản? <a href="#">Liên hệ Quản trị viên</a></p>
+          <p>
+            Chưa có tài khoản? 
+            <a href="#">Liên hệ Quản trị viên</a>
+          </p>
         </div>
       </div>
 
       <!-- Footer Meta -->
-      <footer class="login-footer">
+      <footer class="app-footer">
         <p class="copyright">© 2024 EDUMANAGER. ALL RIGHTS RESERVED.</p>
         <div class="footer-links">
           <a href="#">Hỗ trợ</a>
-          <span class="dot">•</span>
+          <span class="divider">•</span>
           <a href="#">Điều khoản</a>
-          <span class="dot">•</span>
+          <span class="divider">•</span>
           <a href="#">Bảo mật</a>
         </div>
       </footer>
@@ -115,7 +150,9 @@ const handleLogin = () => {
 </template>
 
 <style scoped>
-.login-page {
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+.login-wrapper {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -123,21 +160,24 @@ const handleLogin = () => {
   background-color: #f7f9fb;
   color: #191c1e;
   font-family: 'Inter', sans-serif;
+  padding: 24px;
   position: relative;
   overflow: hidden;
-  padding: 24px;
-}
-
-/* Background Blurs */
-.bg-decorations {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
   z-index: 0;
 }
 
-.decor-circle {
+/* Background Decorations */
+.background-decor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.blur-circle {
   position: absolute;
   border-radius: 50%;
   filter: blur(120px);
@@ -147,39 +187,45 @@ const handleLogin = () => {
   top: -10%;
   left: -10%;
   width: 40%;
-  padding-bottom: 40%;
-  background-color: rgba(0, 74, 198, 0.05); /* primary/5 */
+  height: 40%;
+  background: rgba(0, 74, 198, 0.05); /* primary with 5% opacity */
 }
 
 .circle-2 {
   top: 60%;
   right: -5%;
   width: 30%;
-  padding-bottom: 30%;
-  background-color: rgba(172, 191, 255, 0.1); 
+  height: 30%;
+  background: rgba(172, 191, 255, 0.1); /* secondary-container equivalent */
   filter: blur(100px);
 }
 
+/* Container */
 .login-container {
   width: 100%;
-  max-width: 440px;
-  position: relative;
-  z-index: 1;
-  animation: slideUp 0.5s ease-out;
+  max-width: 400px;
+  z-index: 10;
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Header */
-.brand-header {
+/* Branding */
+.branding {
   text-align: center;
   margin-bottom: 40px;
 }
 
-.logo-box {
+.logo-icon-box {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -188,35 +234,36 @@ const handleLogin = () => {
   border-radius: 16px;
   background: linear-gradient(135deg, #004ac6, #2563eb);
   color: #ffffff;
-  box-shadow: 0 10px 25px -5px rgba(0, 74, 198, 0.3);
   margin-bottom: 16px;
+  box-shadow: 0 10px 20px rgba(0, 74, 198, 0.2);
 }
 
-.logo-icon {
+.logo-icon-box .material-symbols-outlined {
   font-size: 32px;
 }
 
-.brand-name {
+.brand-title {
   font-size: 30px;
   font-weight: 800;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   color: #191c1e;
   margin: 0;
 }
 
-.brand-slogan {
+.brand-subtitle {
   font-size: 15px;
-  font-weight: 500;
   color: #434655;
-  margin: 8px 0 0 0;
+  margin: 8px 0 0;
+  font-weight: 500;
 }
 
-/* Card */
+/* Login Card */
 .login-card {
-  background-color: #ffffff;
-  border-radius: 16px;
-  padding: 40px 32px;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.02);
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 32px;
+  border: 1px solid rgba(195, 198, 215, 0.3);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .card-header {
@@ -227,7 +274,7 @@ const handleLogin = () => {
   font-size: 20px;
   font-weight: 700;
   color: #191c1e;
-  margin: 0 0 4px 0;
+  margin: 0 0 6px;
 }
 
 .card-header p {
@@ -236,48 +283,52 @@ const handleLogin = () => {
   margin: 0;
 }
 
+/* Form Styles */
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
+}
+
+.error-alert {
+  padding: 12px;
+  background: rgba(186, 26, 26, 0.1);
+  border: 1px solid rgba(186, 26, 26, 0.2);
+  color: #ba1a1a;
+  border-radius: 8px;
+  font-size: 13px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
+  gap: 8px;
 }
 
 .form-group label {
   font-size: 14px;
   font-weight: 600;
   color: #191c1e;
-  margin-bottom: 8px;
 }
 
-.label-row {
+.label-flex {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-}
-
-.label-row label {
-  margin-bottom: 0;
 }
 
 .forgot-link {
   font-size: 13px;
-  font-weight: 600;
   color: #004ac6;
   text-decoration: none;
-  transition: color 0.2s;
+  font-weight: 600;
 }
 
 .forgot-link:hover {
-  color: #003ea8;
+  text-decoration: underline;
 }
 
-.input-wrapper {
+.input-container {
   position: relative;
   display: flex;
   align-items: center;
@@ -285,79 +336,71 @@ const handleLogin = () => {
 
 .input-icon {
   position: absolute;
-  left: 14px;
+  left: 12px;
   font-size: 20px;
   color: #737686;
   pointer-events: none;
 }
 
-.input-wrapper input {
+.input-container input {
   width: 100%;
-  padding: 14px 14px 14px 44px;
-  background-color: #ffffff;
-  border: 1px solid rgba(195, 198, 215, 0.5);
+  padding: 12px 12px 12px 40px;
   border-radius: 12px;
+  border: 1px solid rgba(195, 198, 215, 0.5);
   font-size: 15px;
+  background: #ffffff;
   color: #191c1e;
+  transition: all 0.2s ease;
   outline: none;
-  transition: all 0.2s;
 }
 
-.input-wrapper input::placeholder {
-  color: rgba(115, 118, 134, 0.5);
-}
-
-.input-wrapper input:focus {
+.input-container input:focus {
   border-color: #004ac6;
   box-shadow: 0 0 0 4px rgba(0, 74, 198, 0.1);
 }
 
-.btn-toggle-pass {
+.input-container input::placeholder {
+  color: rgba(115, 118, 134, 0.4);
+}
+
+.toggle-password {
   position: absolute;
-  right: 14px;
-  background: transparent;
+  right: 12px;
+  background: none;
   border: none;
-  padding: 0;
+  padding: 4px;
   cursor: pointer;
-  display: flex;
   color: #737686;
-  transition: color 0.2s;
+  display: flex;
+  align-items: center;
 }
 
-.btn-toggle-pass .input-icon {
-  position: static;
-  pointer-events: auto;
-}
-
-.btn-toggle-pass:hover {
+.toggle-password:hover {
   color: #191c1e;
 }
 
-.remember-row {
+.remember-me {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.remember-row input[type="checkbox"] {
+.remember-me input {
   width: 18px;
   height: 18px;
-  border-radius: 4px;
-  border: 1px solid rgba(195, 198, 215, 0.8);
   accent-color: #004ac6;
   cursor: pointer;
 }
 
-.remember-row label {
+.remember-me label {
   font-size: 14px;
   color: #434655;
   cursor: pointer;
-  user-select: none;
 }
 
-.btn-submit {
+.submit-btn {
   width: 100%;
-  padding: 16px;
+  padding: 14px;
   background: linear-gradient(to right, #004ac6, #2563eb);
   color: #ffffff;
   border: none;
@@ -365,76 +408,91 @@ const handleLogin = () => {
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 2px 4px rgba(0, 74, 198, 0.1);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.btn-submit:hover {
+.submit-btn:hover {
   opacity: 0.9;
 }
 
-.btn-submit:active {
+.submit-btn:active {
   transform: scale(0.98);
 }
 
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  font-size: 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .card-footer {
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(195, 198, 215, 0.2);
+  margin-top: 24px;
   text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(195, 198, 215, 0.2);
 }
 
 .card-footer p {
   font-size: 14px;
   color: #434655;
-  margin: 0;
 }
 
 .card-footer a {
-  font-weight: 700;
   color: #004ac6;
+  font-weight: 700;
   text-decoration: none;
-  transition: color 0.2s;
 }
 
 .card-footer a:hover {
-  color: #003ea8;
+  text-decoration: underline;
 }
 
-/* App Footer */
-.login-footer {
+/* Footer Meta */
+.app-footer {
   margin-top: 48px;
   text-align: center;
 }
 
 .copyright {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.05em;
   color: #737686;
-  margin: 0 0 12px 0;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+  text-transform: uppercase;
 }
 
 .footer-links {
   display: flex;
   justify-content: center;
+  gap: 12px;
   align-items: center;
-  gap: 16px;
 }
 
 .footer-links a {
   font-size: 12px;
   color: #737686;
   text-decoration: none;
-  transition: color 0.2s;
 }
 
 .footer-links a:hover {
   color: #004ac6;
 }
 
-.dot {
-  color: rgba(195, 198, 215, 0.4);
-  font-size: 12px;
+.divider {
+  color: rgba(195, 198, 215, 0.3);
+  font-size: 10px;
 }
 </style>
