@@ -1,139 +1,262 @@
+<script setup>
+import { ref, computed } from 'vue'
+
+const invoices = ref([
+  { id: 1, code: '#INV-2024001', student: 'Nguyễn Lâm', avatarColor: 'blue', initials: 'NL', course: 'IELTS Foundation / Th. 03', amount: '4.500.000', dueDate: '15/03/2024', status: 'Đã thanh toán' },
+  { id: 2, code: '#INV-2024002', student: 'Trần Văn Tú', avatarColor: 'rose', initials: 'TV', course: 'TOEIC Speaking / Th. 03', amount: '3.200.000', dueDate: '20/03/2024', status: 'Đang chờ' },
+  { id: 3, code: '#INV-2024003', student: 'Lê Hồng Hạnh', avatarColor: 'orange', initials: 'LH', course: 'Tiếng Anh Giao Tiếp / Th. 03', amount: '2.800.000', dueDate: '10/03/2024', status: 'Quá hạn' },
+  { id: 4, code: '#INV-2024004', student: 'Phạm Minh', avatarColor: 'indigo', initials: 'PM', course: 'Luyện thi SAT / Th. 03', amount: '6.500.000', dueDate: '25/03/2024', status: 'Đang chờ' },
+]);
+
+const searchQuery = ref('')
+const statusFilter = ref('')
+
+const filteredInvoices = computed(() => {
+  return invoices.value.filter(inv => {
+    const matchesSearch = inv.code.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
+                          inv.student.toLowerCase().includes(searchQuery.value.toLowerCase())
+    const matchesStatus = !statusFilter.value || inv.status === statusFilter.value
+    return matchesSearch && matchesStatus
+  })
+})
+
+const quickStats = computed(() => [
+  { label: 'Tổng Doanh Thu', value: '1.250.000.000 ₫', sub: '+12.5%', icon: 'account_balance_wallet', color: '#10b981', bg: '#ecfdf5' },
+  { label: 'Chờ Thanh Toán', value: '320.450.000 ₫', sub: '42 Hóa đơn', icon: 'pending_actions', color: '#f59e0b', bg: '#fffbeb' },
+  { label: 'Hóa Đơn Quá Hạn', value: '54.200.000 ₫', sub: '8 Quá hạn', icon: 'event_busy', color: '#ef4444', bg: '#fef2f2' },
+])
+
+function getStatusClass(status) {
+  if (status === 'Đã thanh toán') return 'badge-success'
+  if (status === 'Đang chờ') return 'badge-warning'
+  if (status === 'Quá hạn') return 'badge-danger'
+  return 'badge-gray'
+}
+
+function getAvatarColor(color) {
+  const map = {
+    'blue': '#3b82f6',
+    'rose': '#e11d48',
+    'orange': '#ea580c',
+    'indigo': '#4f46e5'
+  }
+  return map[color] || '#cbd5e1'
+}
+
+function deleteInvoice(id) {
+  if (confirm('Bạn có chắc chắn muốn xóa hóa đơn này?')) {
+    invoices.value = invoices.value.filter(i => i.id !== id)
+  }
+}
+</script>
+
 <template>
-  <div class="space-y-8">
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
-      <div>
-        <h2 class="text-3xl font-extrabold tracking-tight text-slate-900">Quản lý Học phí</h2>
-        <p class="text-slate-500 mt-1">Theo dõi và quản lý các hóa đơn học tập hàng tháng.</p>
+  <div class="admin-page">
+    <div class="headers">
+      <div class="header-left">
+        <h1 class="title">Quản lý Học phí</h1>
+        <p class="subtitle">Theo dõi và quản lý các hóa đơn học tập hàng tháng.</p>
       </div>
-      <button class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-primary-container text-white rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
-        <span class="material-symbols-outlined text-lg">add_circle</span>
-        <span>Create Invoice</span>
+      <button class="btn btn-primary">
+        <span class="material-symbols-outlined">add_circle</span>
+        Tạo Hóa đơn mới
       </button>
     </div>
 
-    <!-- Bento Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-surface-container-lowest p-6 rounded-2xl flex flex-col justify-between min-h-[160px] group border border-outline-variant/10 shadow-sm border-b-2 hover:border-primary transition-all duration-300">
-        <div class="flex justify-between items-start">
-          <div class="p-3 bg-blue-50 text-primary rounded-xl">
-            <span class="material-symbols-outlined">account_balance_wallet</span>
+    <!-- Quick Stats -->
+    <div class="stats-container" style="grid-template-columns: repeat(3, 1fr);">
+      <div v-for="stat in quickStats" :key="stat.label" class="stat-card">
+        <div class="stat-icon-box" :style="{ color: stat.color, backgroundColor: stat.bg }">
+          <span class="material-symbols-outlined">{{ stat.icon }}</span>
+        </div>
+        <div class="stat-content flex-1 max-w-full">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <p class="stat-label">{{ stat.label }}</p>
+            <span class="stat-sub-badge" :style="{ color: stat.color, backgroundColor: stat.bg, fontWeight: 700, fontSize: '11px', padding: '2px 8px', borderRadius: '4px' }">{{ stat.sub }}</span>
           </div>
-          <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">+12.5%</span>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-slate-500 mb-1">Tổng Doanh Thu</p>
-          <h3 class="text-2xl font-black text-slate-900">1.250.000.000 <span class="text-sm font-semibold">₫</span></h3>
-        </div>
-      </div>
-      <div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col justify-between min-h-[160px] border border-outline-variant/10 shadow-sm border-b-2 hover:border-secondary transition-all duration-300">
-        <div class="flex justify-between items-start">
-          <div class="p-3 bg-indigo-50 text-secondary rounded-xl">
-            <span class="material-symbols-outlined">pending_actions</span>
-          </div>
-          <span class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-full">42 Hóa đơn</span>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-slate-500 mb-1">Chờ Thanh Toán</p>
-          <h3 class="text-2xl font-black text-slate-900">320.450.000 <span class="text-sm font-semibold">₫</span></h3>
-        </div>
-      </div>
-      <div class="bg-surface-container-lowest p-6 rounded-xl flex flex-col justify-between min-h-[160px] border border-outline-variant/10 shadow-sm border-b-2 hover:border-error transition-all duration-300">
-        <div class="flex justify-between items-start">
-          <div class="p-3 bg-red-50 text-error rounded-xl">
-            <span class="material-symbols-outlined">event_busy</span>
-          </div>
-          <span class="text-xs font-bold text-error bg-red-100 px-2 py-1 rounded-full">8 Quá hạn</span>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-slate-500 mb-1">Hóa Đơn Quá Hạn</p>
-          <h3 class="text-2xl font-black text-slate-900">54.200.000 <span class="text-sm font-semibold">₫</span></h3>
+          <h3 class="stat-value" style="margin-top: 4px;">{{ stat.value }}</h3>
         </div>
       </div>
     </div>
 
-    <!-- Table Container -->
-    <div class="bg-surface-container-lowest rounded-3xl overflow-hidden border border-outline-variant/10 shadow-sm">
-      <div class="px-8 py-6 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <h4 class="text-lg font-bold text-slate-900">Danh sách hóa đơn</h4>
-          <div class="flex bg-slate-100 p-1 rounded-lg">
-            <button class="px-4 py-1.5 text-xs font-bold bg-white text-primary rounded-md shadow-sm">Tất cả</button>
-            <button class="px-4 py-1.5 text-xs font-bold text-slate-500 hover:text-primary transition-colors">Đã trả</button>
-            <button class="px-4 py-1.5 text-xs font-bold text-slate-500 hover:text-primary transition-colors">Chưa trả</button>
-          </div>
+    <!-- Main Card -->
+    <div class="content-box">
+      <div class="toolbar">
+        <div class="search-wrapper">
+          <span class="material-symbols-outlined search-icon">search</span>
+          <input v-model="searchQuery" type="text" class="input-search" placeholder="Tìm theo mã hoặc tên học viên..." />
         </div>
-        <button class="p-2 text-slate-400 hover:text-primary transition-colors">
-          <span class="material-symbols-outlined">filter_list</span>
-        </button>
+        
+        <div class="filters">
+          <div class="select-wrapper">
+            <select v-model="statusFilter" class="select-filter">
+              <option value="">Tất cả trạng thái</option>
+              <option value="Đã thanh toán">Đã thanh toán</option>
+              <option value="Đang chờ">Đang chờ</option>
+              <option value="Quá hạn">Quá hạn</option>
+            </select>
+            <span class="material-symbols-outlined select-arrow">expand_more</span>
+          </div>
+          
+          <button class="btn btn-secondary">
+            <span class="material-symbols-outlined">filter_list</span>
+            Bộ lọc nâng cao
+          </button>
+        </div>
       </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+
+      <!-- Table -->
+      <div class="table-container">
+        <table class="user-table">
           <thead>
-            <tr class="bg-surface-container-low">
-              <th class="px-8 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Mã hóa đơn</th>
-              <th class="px-8 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Học sinh</th>
-              <th class="px-8 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Khóa học / Tháng</th>
-              <th class="px-8 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500 text-right">Số tiền</th>
-              <th class="px-8 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Hạn thanh toán</th>
-              <th class="px-8 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500">Trạng thái</th>
-              <th class="px-8 py-4 text-[11px] font-black uppercase tracking-wider text-slate-500 text-center">Thao tác</th>
+            <tr>
+              <th style="width: 15%">Mã hóa đơn</th>
+              <th style="width: 20%">Học sinh</th>
+              <th style="width: 20%">Khóa học / Tháng</th>
+              <th style="width: 15%" class="text-right">Số tiền</th>
+              <th style="width: 15%">Hạn thanh toán</th>
+              <th style="width: 10%">Trạng thái</th>
+              <th style="width: 5%" class="text-right">Thao tác</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100">
-            <tr v-for="invoice in invoices" :key="invoice.id" class="hover:bg-slate-50 transition-colors group">
-              <td class="px-8 py-5 font-bold text-primary text-sm">{{ invoice.code }}</td>
-              <td class="px-8 py-5">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" :class="invoice.avatarBgClass">{{ invoice.initials }}</div>
-                  <span class="text-sm font-semibold text-slate-900">{{ invoice.student }}</span>
+          <tbody>
+            <tr v-for="inv in filteredInvoices" :key="inv.id" class="table-row">
+              <td>
+                <span class="invoice-code">{{ inv.code }}</span>
+              </td>
+              <td>
+                <div class="user-info">
+                  <div class="avatar" :style="{ backgroundColor: getAvatarColor(inv.avatarColor) }">{{ inv.initials }}</div>
+                  <span class="user-full-name">{{ inv.student }}</span>
                 </div>
               </td>
-              <td class="px-8 py-5 text-sm text-slate-600">{{ invoice.course }}</td>
-              <td class="px-8 py-5 text-sm font-black text-slate-900 text-right">{{ invoice.amount }} ₫</td>
-              <td class="px-8 py-5 text-sm text-slate-500">{{ invoice.dueDate }}</td>
-              <td class="px-8 py-5">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold" :class="invoice.statusClass">{{ invoice.status }}</span>
+              <td>
+                <span class="course-text">{{ inv.course }}</span>
               </td>
-              <td class="px-8 py-5">
-                <div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button class="p-2 text-slate-400 hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined text-lg">visibility</span>
+              <td class="text-right">
+                <strong class="amount-text">{{ inv.amount }} ₫</strong>
+              </td>
+              <td>
+                <span class="date-text">{{ inv.dueDate }}</span>
+              </td>
+              <td>
+                <span class="badge" :class="getStatusClass(inv.status)">{{ inv.status }}</span>
+              </td>
+              <td class="text-right">
+                <div class="actions">
+                  <button class="action-btn" title="Xem chi tiết">
+                    <span class="material-symbols-outlined">visibility</span>
                   </button>
-                  <button class="p-2 text-slate-400 hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined text-lg">print</span>
+                  <button class="action-btn" title="In hóa đơn">
+                    <span class="material-symbols-outlined">print</span>
                   </button>
-                  <button class="p-2 text-slate-400 hover:text-error transition-colors">
-                    <span class="material-symbols-outlined text-lg">delete</span>
+                  <button class="action-btn btn-delete" @click="deleteInvoice(inv.id)" title="Xóa">
+                    <span class="material-symbols-outlined">delete</span>
                   </button>
                 </div>
+              </td>
+            </tr>
+            <tr v-if="filteredInvoices.length === 0">
+              <td colspan="7" class="empty-state">
+                Không tìm thấy hóa đơn nào phù hợp.
               </td>
             </tr>
           </tbody>
         </table>
       </div>
-      <div class="px-8 py-6 border-t border-slate-100 flex items-center justify-between bg-surface-container-low/20">
-        <p class="text-xs text-slate-500">Hiển thị 1-4 của 120 hóa đơn</p>
-        <div class="flex items-center gap-2">
-          <button class="p-2 rounded-lg hover:bg-slate-100 disabled:opacity-30" disabled>
-            <span class="material-symbols-outlined text-lg">chevron_left</span>
-          </button>
-          <button class="w-8 h-8 rounded-lg bg-primary text-white text-xs font-bold shadow-sm">1</button>
-          <button class="w-8 h-8 rounded-lg hover:bg-white text-slate-600 text-xs font-bold border border-outline-variant/10">2</button>
-          <button class="p-2 rounded-lg hover:bg-white border border-outline-variant/10">
-            <span class="material-symbols-outlined text-lg">chevron_right</span>
-          </button>
+
+      <!-- Footer -->
+      <div class="table-footer flex-footer">
+        <p>Hiển thị <strong>1-{{ filteredInvoices.length }}</strong> của {{ invoices.length }} hóa đơn</p>
+        <div class="pagination">
+          <button class="page-btn"><span class="material-symbols-outlined">chevron_left</span></button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn"><span class="material-symbols-outlined">chevron_right</span></button>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
-const invoices = [
-  { id: 1, code: '#INV-2024001', student: 'Nguyễn Lâm', initials: 'NL', course: 'IELTS Foundation / Th. 03', amount: '4.500.000', dueDate: '15/03/2024', status: 'Đã thanh toán', statusClass: 'bg-emerald-100 text-emerald-700', avatarBgClass: 'bg-blue-100 text-blue-700' },
-  { id: 2, code: '#INV-2024002', student: 'Trần Văn Tú', initials: 'TV', course: 'TOEIC Speaking / Th. 03', amount: '3.200.000', dueDate: '20/03/2024', status: 'Đang chờ', statusClass: 'bg-amber-100 text-amber-700', avatarBgClass: 'bg-purple-100 text-purple-700' },
-  { id: 3, code: '#INV-2024003', student: 'Lê Hồng Hạnh', initials: 'LH', course: 'Tiếng Anh Giao Tiếp / Th. 03', amount: '2.800.000', dueDate: '10/03/2024', status: 'Quá hạn', statusClass: 'bg-rose-100 text-rose-700', avatarBgClass: 'bg-rose-100 text-rose-700' },
-  { id: 4, code: '#INV-2024004', student: 'Phạm Minh', initials: 'PM', course: 'Luyện thi SAT / Th. 03', amount: '6.500.000', dueDate: '25/03/2024', status: 'Đang chờ', statusClass: 'bg-amber-100 text-amber-700', avatarBgClass: 'bg-blue-100 text-blue-700' },
-];
-</script>
+<style scoped>
+/* Base Styles */
+.admin-page { background-color: #f8fafc; min-height: 100vh; padding: 0 4px; font-family: 'Inter', system-ui, -apple-system, sans-serif; color: #1e293b; }
+.headers { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.title { font-size: 24px; font-weight: 700; color: #0f172a; margin: 0 0 4px 0; }
+.subtitle { font-size: 14px; color: #64748b; margin: 0; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; }
+.btn-primary { background-color: #2563eb; color: #ffffff; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2), 0 2px 4px -2px rgba(37, 99, 235, 0.1); }
+.btn-primary:hover { background-color: #1d4ed8; transform: translateY(-1px); box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.25); }
+.btn-secondary { background-color: #ffffff; color: #475569; border-color: #e2e8f0; }
+.btn-secondary:hover { background-color: #f8fafc; border-color: #cbd5e1; }
+
+/* Stats Cards */
+.stats-container { display: grid; gap: 20px; margin-bottom: 28px; }
+.stat-card { background-color: #ffffff; padding: 20px; border-radius: 12px; display: flex; items: center; gap: 16px; border: 1px solid #f1f5f9; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); transition: transform 0.2s ease; }
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+.stat-icon-box { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.stat-icon-box .material-symbols-outlined { font-size: 24px; }
+.stat-label { font-size: 13px; font-weight: 600; color: #64748b; margin: 0 0 2px 0; display: block; }
+.stat-value { font-size: 22px; font-weight: 700; color: #0f172a; margin: 0; }
+
+/* Content Box */
+.content-box { background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); overflow: hidden; }
+
+/* Toolbar */
+.toolbar { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; gap: 16px; flex-wrap: wrap; }
+.search-wrapper { position: relative; flex: 1; max-width: 400px; }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 20px; }
+.input-search { width: 100%; padding: 10px 12px 10px 40px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; background-color: #f8fafc; transition: all 0.2s; outline: none; }
+.input-search:focus { background-color: #ffffff; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+
+.filters { display: flex; gap: 12px; align-items: center; }
+.select-wrapper { position: relative; min-width: 180px; }
+.select-filter { width: 100%; appearance: none; padding: 10px 36px 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-weight: 500; color: #475569; background-color: #ffffff; cursor: pointer; outline: none; }
+.select-arrow { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
+
+/* Table */
+.table-container { min-height: 300px; position: relative; }
+.user-table { width: 100%; border-collapse: collapse; }
+.user-table th { text-align: left; padding: 14px 24px; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.025em; background-color: #f8fafc; border-bottom: 1px solid #f1f5f9; }
+.table-row { transition: background-color 0.2s ease; }
+.table-row:hover { background-color: #f8fafc; }
+.user-table td { padding: 16px 24px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+
+/* Invoices specifics */
+.invoice-code { font-family: monospace; font-size: 13px; font-weight: 700; color: #2563eb; }
+.course-text { font-size: 13px; color: #475569; font-weight: 500; }
+.amount-text { font-size: 14px; font-weight: 700; color: #0f172a; }
+.date-text { font-size: 13px; color: #64748b; font-weight: 500; }
+
+.user-info { display: flex; align-items: center; gap: 12px; }
+.avatar { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ffffff; font-weight: 700; font-size: 12px; }
+.user-full-name { font-size: 14px; font-weight: 600; color: #1e293b; margin: 0; }
+
+/* Badges */
+.badge { display: inline-flex; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.badge-success { background-color: #ecfdf5; color: #10b981; }
+.badge-warning { background-color: #fffbeb; color: #f59e0b; }
+.badge-danger { background-color: #fef2f2; color: #ef4444; }
+.badge-gray { background-color: #f1f5f9; color: #64748b; }
+
+/* Actions */
+.actions { display: flex; justify-content: flex-end; gap: 4px; opacity: 0; transition: opacity 0.2s; }
+.table-row:hover .actions { opacity: 1; }
+.action-btn { width: 34px; height: 34px; border-radius: 6px; border: 1px solid transparent; background-color: transparent; color: #94a3b8; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.action-btn:hover { background-color: #f1f5f9; color: #2563eb; }
+.btn-delete:hover { color: #dc2626; background-color: #fef2f2; }
+.action-btn .material-symbols-outlined { font-size: 20px; }
+.text-right { text-align: right; }
+
+/* Empty state & Footer */
+.empty-state { text-align: center; padding: 60px 0; color: #94a3b8; }
+.table-footer { padding: 16px 24px; font-size: 13px; color: #64748b; border-top: 1px solid #f1f5f9; background-color: #f8fafc; }
+.flex-footer { display: flex; justify-content: space-between; align-items: center; }
+.pagination { display: flex; gap: 8px; }
+.page-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; font-size: 12px; font-weight: 700; color: #475569; background: #ffffff; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.2s; }
+.page-btn:hover { background: #f1f5f9; }
+.page-btn.active { background: #2563eb; color: #ffffff; border-color: #2563eb; }
+</style>

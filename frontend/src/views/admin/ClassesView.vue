@@ -1,314 +1,3 @@
-<template>
-  <div class="view-page">
-    <header class="header-action">
-      <div class="left">
-        <h1>Quản lý Lớp học</h1>
-        <p>Danh sách các lớp học hiện có trong hệ thống</p>
-      </div>
-      <button class="btn-primary-rounded" @click="openAddModal">
-        <span class="material-symbols-outlined">add</span>
-        Thêm Lớp học mới
-      </button>
-    </header>
-
-    <section class="stats-bento">
-      <div v-for="stat in stats" :key="stat.label" class="mini-card shadow-sm">
-        <div class="card-info">
-          <span class="label">{{ stat.label }}</span>
-          <h2 :class="stat.accent">{{ stat.value }}</h2>
-          <p class="meta" :class="stat.accent">{{ stat.meta }}</p>
-        </div>
-        <span class="material-symbols-outlined decor">{{ stat.icon }}</span>
-      </div>
-    </section>
-
-    <section class="filter-bar shadow-sm">
-      <div class="filter-left">
-        <div class="search-wrapper-v2">
-          <span class="material-symbols-outlined">search</span>
-          <input type="text" placeholder="Tìm kiếm tên lớp..." />
-        </div>
-        <div class="select-wrapper-v2">
-          <span class="material-symbols-outlined">filter_list</span>
-          <select>
-            <option>Tất cả môn học</option>
-            <option v-for="s in subjects" :key="s.id" :value="s.id">{{ s.name }}</option>
-          </select>
-        </div>
-      </div>
-      <div class="filter-right">
-        <span>Hiển thị {{ classes.length }} lớp</span>
-      </div>
-    </section>
-
-    <div class="table-wrapper shadow-sm">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>TÊN LỚP</th>
-            <th>MÔN HỌC</th>
-            <th>GIÁO VIÊN</th>
-            <th>PHÒNG</th>
-            <th>SĨ SỐ</th>
-            <th>HỌC PHÍ</th>
-            <th>TRẠNG THÁI</th>
-            <th class="actions"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="cls in classes" :key="cls.id">
-            <td>
-              <div class="class-title" @click="viewDetail(cls)" style="cursor: pointer;">
-                <strong>{{ cls.name }}</strong>
-                <span>Mã: {{ cls.class_code }}</span>
-              </div>
-            </td>
-            <td>
-              <span class="badge-subject-v2">{{ getSubjectName(cls.subject_id) }}</span>
-            </td>
-            <td>
-              <div class="teacher-cell">
-                <div class="mini-avatar">{{ getTeacher(cls.teacher_id).initials }}</div>
-                <span>{{ getTeacher(cls.teacher_id).name }}</span>
-              </div>
-            </td>
-            <td><span class="txt-room-v2">{{ getRoomCode(cls.room_id) }}</span></td>
-            <td>
-              <div class="capacity-indicator">
-                <span :class="{ 'text-danger': cls.current_students >= cls.max_students }">
-                  {{ cls.current_students }}/{{ cls.max_students }}
-                </span>
-                <div class="mini-progress">
-                  <div class="bar" :style="{ width: (cls.current_students / cls.max_students * 100) + '%' }"></div>
-                </div>
-              </div>
-            </td>
-            <td><span class="txt-price-v2">{{ formatPrice(cls.default_fee) }}đ</span></td>
-            <td>
-              <span class="badge-status-v2" :class="cls.status">
-                <i class="dot"></i> {{ cls.status === 'open' ? 'Đang mở' : cls.status === 'planned' ? 'Sắp mở' : 'Đã đóng' }}
-              </span>
-            </td>
-            <td class="actions">
-              <div class="btn-group-v2">
-                <button class="icon-btn-v2" title="Chi tiết" @click="viewDetail(cls)">
-                  <span class="material-symbols-outlined">visibility</span>
-                </button>
-                <button class="icon-btn-v2" title="Sửa" @click="openEditModal(cls)">
-                  <span class="material-symbols-outlined">edit</span>
-                </button>
-                <button class="icon-btn-v2 danger" title="Xóa" @click="confirmDelete(cls)">
-                  <span class="material-symbols-outlined">delete</span>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Modal: Thêm/Sửa Lớp Học -->
-    <Transition name="modal">
-      <div v-if="isModalOpen" class="modal-overlay" @click.self="isModalOpen = false">
-        <div class="modal-content premium-modal-v3 relative">
-          <button class="close-btn-absolute" @click="isModalOpen = false">
-            <span class="material-symbols-outlined">close</span>
-          </button>
-
-          <div class="modal-header-v3">
-            <h3>{{ isEditing ? 'Cập nhật Lớp học' : 'Thêm lớp học mới' }}</h3>
-            <p>Cung cấp thông tin chi tiết để khởi tạo lớp học trong hệ thống.</p>
-          </div>
-
-          <form @submit.prevent="saveClass" class="modal-form-v3">
-            <div class="form-grid-v3">
-              <!-- Row 1: Tên lớp -->
-              <div class="form-group-v3 full-width">
-                <label>Tên lớp học</label>
-                <input v-model="form.name" type="text" placeholder="Ví dụ: IELTS Foundation - T8/2023" required />
-              </div>
-
-              <!-- Row 2: Môn học & Giáo viên -->
-              <div class="form-group-v3">
-                <label>Chọn Môn học</label>
-                <select v-model="form.subject_id" required>
-                  <option value="" disabled>Chọn môn học...</option>
-                  <option v-for="s in subjects" :key="s.id" :value="s.id">{{ s.name }}</option>
-                </select>
-              </div>
-              <div class="form-group-v3">
-                <label>Giáo viên giảng dạy</label>
-                <select v-model="form.teacher_id" required>
-                  <option value="" disabled>Chọn giáo viên...</option>
-                  <option v-for="t in teachers" :key="t.id" :value="t.id">{{ t.name }}</option>
-                </select>
-              </div>
-
-              <!-- Row 3: Phòng học & Trạng thái -->
-              <div class="form-group-v3">
-                <label>Phòng học</label>
-                <select v-model="form.room_id" required>
-                  <option value="" disabled>Chọn phòng học...</option>
-                  <option v-for="r in rooms" :key="r.id" :value="r.id">{{ r.code }}</option>
-                </select>
-              </div>
-              <div class="form-group-v3">
-                <label>Trạng thái lớp</label>
-                <div class="radio-group-v3">
-                  <label class="radio-label-v3">
-                    <input type="radio" v-model="form.status" value="planned" />
-                    <span>Planned</span>
-                  </label>
-                  <label class="radio-label-v3">
-                    <input type="radio" v-model="form.status" value="open" />
-                    <span>Open</span>
-                  </label>
-                  <label class="radio-label-v3">
-                    <input type="radio" v-model="form.status" value="closed" />
-                    <span>Closed</span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Row 4: Học phí & Sĩ số -->
-              <div class="form-group-v3">
-                <label>Thiết lập Học phí (VNĐ)</label>
-                <div class="input-with-icon">
-                  <span class="material-symbols-outlined">payments</span>
-                  <input v-model.number="form.default_fee" type="number" />
-                </div>
-              </div>
-              <div class="form-group-v3">
-                <label>Sĩ số tối đa</label>
-                <div class="input-with-icon">
-                  <span class="material-symbols-outlined">groups</span>
-                  <input v-model.number="form.max_students" type="number" />
-                </div>
-              </div>
-
-              <!-- Row 5: Ngày bắt đầu & Kết thúc -->
-              <div class="form-group-v3">
-                <label>Ngày khai giảng</label>
-                <input v-model="form.start_date" type="date" />
-              </div>
-              <div class="form-group-v3">
-                <label>Ngày kết thúc dự kiến</label>
-                <input v-model="form.end_date" type="date" />
-              </div>
-            </div>
-
-            <div class="modal-footer-v3">
-              <button type="button" class="btn-text-v3" @click="isModalOpen = false">Hủy bỏ</button>
-              <button type="submit" class="btn-submit-v3">Lưu thông tin</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </Transition>
-
-    <!-- Modal: Chi tiết Lớp học & Danh sách học viên -->
-    <Transition name="modal">
-      <div v-if="isDetailModalOpen" class="modal-overlay" @click.self="isDetailModalOpen = false">
-        <div class="modal-content premium-modal-v3 relative detail-modal">
-          <button class="close-btn-absolute" @click="isDetailModalOpen = false">
-            <span class="material-symbols-outlined">close</span>
-          </button>
-
-          <div class="modal-header-v3">
-            <h3>{{ selectedClass?.name }}</h3>
-            <p>Danh sách học viên đang theo học tại lớp này.</p>
-          </div>
-
-          <div class="detail-body-v3">
-            <div class="class-info-summary shadow-sm">
-              <div class="info-item">
-                <span class="label">Môn học:</span>
-                <strong>{{ getSubjectName(selectedClass?.subject_id) }}</strong>
-              </div>
-              <div class="info-item">
-                <span class="label">Giáo viên:</span>
-                <strong>{{ getTeacher(selectedClass?.teacher_id).name }}</strong>
-              </div>
-              <div class="info-item">
-                <span class="label">Sĩ số:</span>
-                <strong :class="{ 'text-danger': selectedClass?.current_students >= selectedClass?.max_students }">
-                  {{ selectedClass?.current_students }} / {{ selectedClass?.max_students }}
-                </strong>
-              </div>
-            </div>
-
-            <div class="student-list-container">
-              <table class="simple-table">
-                <thead>
-                  <tr>
-                    <th>Học viên</th>
-                    <th>Mã HV</th>
-                    <th class="text-right">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="student in getEnrolledStudents(selectedClass?.id)" :key="student.id">
-                    <td>
-                      <div class="student-item">
-                        <div class="mini-avatar blue">{{ student.full_name[0] }}</div>
-                        <span>{{ student.full_name }}</span>
-                      </div>
-                    </td>
-                    <td><span class="code-tag">{{ student.student_code }}</span></td>
-                    <td class="text-right">
-                      <div class="transfer-box">
-                        <select @change="e => transferStudent(student.id, parseInt(e.target.value))" class="select-sm">
-                          <option value="" selected disabled>Chuyển sang...</option>
-                          <option v-for="c in classes.filter(c => c.id !== selectedClass.id)" :key="c.id" :value="c.id">
-                            {{ c.name }}
-                          </option>
-                        </select>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr v-if="getEnrolledStudents(selectedClass?.id).length === 0">
-                    <td colspan="3" class="empty-state">Chưa có học viên trong lớp này.</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Transition>
-
-    <!-- Modal: Xác nhận xóa lớp học -->
-    <Transition name="modal">
-      <div v-if="isDeleteModalOpen" class="modal-overlay" @click.self="isDeleteModalOpen = false">
-        <div class="modal-content delete-confirm-modal">
-          <div class="delete-warning-icon">
-            <span class="material-symbols-outlined" style="font-size:40px;color:#ef4444;">warning</span>
-          </div>
-          <h3 class="delete-title">Xác nhận xóa lớp học</h3>
-          <p class="delete-subtitle">
-            Hành động này <strong style="color:#ef4444;">không thể hoàn tác</strong>. Bạn có chắc chắn muốn xóa lớp học:
-          </p>
-          <div class="delete-class-card">
-            <span class="material-symbols-outlined" style="color:#64748b;">school</span>
-            <div>
-              <span class="delete-card-label">TÊN LỚP HỌC</span>
-              <strong class="delete-card-name">{{ classToDelete?.name }}</strong>
-            </div>
-          </div>
-          <p class="delete-warning-note">
-            Tất cả dữ liệu liên quan đến học viên, điểm số và lịch trình của lớp học này sẽ bị xóa vĩnh viễn khỏi hệ
-            thống.
-          </p>
-          <div class="delete-footer">
-            <button class="btn-cancel-v3" @click="isDeleteModalOpen = false">Hủy bỏ</button>
-            <button class="btn-danger-v3" @click="executeDelete">Xác nhận xóa</button>
-          </div>
-        </div>
-      </div>
-    </Transition>
-  </div>
-</template>
-
 <script setup>
 import { ref, computed } from 'vue'
 
@@ -358,6 +47,7 @@ const isModalOpen = ref(false)
 const isDetailModalOpen = ref(false)
 const isDeleteModalOpen = ref(false)
 const isEditing = ref(false)
+const searchQuery = ref('')
 const selectedClass = ref(null)
 const classToDelete = ref(null)
 
@@ -380,10 +70,15 @@ const initialForm = {
 const form = ref({ ...initialForm })
 
 // --- Computed ---
+const filteredClasses = computed(() => {
+  return classes.value.filter(c => c.name.toLowerCase().includes(searchQuery.value.toLowerCase()) || c.class_code.toLowerCase().includes(searchQuery.value.toLowerCase()))
+})
+
 const stats = computed(() => [
-  { label: 'Tổng số lớp', value: classes.value.length, meta: '+2 trong tháng', accent: 'primary', icon: 'hub' },
-  { label: 'Lớp đang mở', value: classes.value.filter(c => c.status === 'open').length, meta: 'Hoạt động', accent: 'neutral', icon: 'door_open' },
-  { label: 'Sắp khai giảng', value: classes.value.filter(c => c.status === 'planned').length, meta: 'Cần giáo viên', accent: 'warning', icon: 'calendar_today' },
+  { label: 'Tổng số lớp', value: classes.value.length, icon: 'hub', color: '#2563eb', bg: '#eff6ff' },
+  { label: 'Lớp đang mở', value: classes.value.filter(c => c.status === 'open').length, icon: 'door_open', color: '#10b981', bg: '#ecfdf5' },
+  { label: 'Sắp khai giảng', value: classes.value.filter(c => c.status === 'planned').length, icon: 'calendar_today', color: '#f59e0b', bg: '#fffbeb' },
+  { label: 'Lớp đã đóng', value: classes.value.filter(c => c.status === 'closed').length, icon: 'block', color: '#ef4444', bg: '#fef2f2' },
 ])
 
 // --- Methods ---
@@ -428,15 +123,12 @@ function viewDetail(cls) {
 function transferStudent(studentId, newClassId) {
   const student = mockStudents.find(s => s.id === studentId)
   if (student) {
-    // 1. Decr current class count
     const oldClass = classes.value.find(c => c.id === student.class_id)
     if (oldClass) oldClass.current_students--
 
-    // 2. Incr new class count
     const newClass = classes.value.find(c => c.id === newClassId)
     if (newClass) newClass.current_students++
 
-    // 3. Update student
     student.class_id = newClassId
     alert(`Đã chuyển học viên sang lớp ${newClass?.name}`)
   }
@@ -451,769 +143,459 @@ function getEnrolledStudents(classId) { return mockStudents.filter(s => s.class_
 function formatPrice(val) {
   return new Intl.NumberFormat('vi-VN').format(val)
 }
+
+function getStatusClass(status) {
+  if (status === 'open') return 'badge-success'
+  if (status === 'planned') return 'badge-warning'
+  return 'badge-gray'
+}
 </script>
 
+<template>
+  <div class="admin-page">
+    <div class="headers">
+      <div class="header-left">
+        <h1 class="title">Quản lý Lớp học</h1>
+        <p class="subtitle">Danh sách các lớp học hiện có trong hệ thống</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" @click="openAddModal">
+          <span class="material-symbols-outlined">add</span>
+          Thêm Lớp học mới
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-container">
+      <div v-for="stat in stats" :key="stat.label" class="stat-card">
+        <div class="stat-icon-box" :style="{ color: stat.color, backgroundColor: stat.bg }">
+          <span class="material-symbols-outlined">{{ stat.icon }}</span>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">{{ stat.label }}</p>
+          <h3 class="stat-value">{{ stat.value }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="content-box">
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search-wrapper">
+          <span class="material-symbols-outlined search-icon">search</span>
+          <input v-model="searchQuery" type="text" class="input-search" placeholder="Tìm kiếm tên lớp..." />
+        </div>
+        
+        <div class="filters">
+          <div class="select-wrapper">
+            <select class="select-filter">
+              <option value="">Tất cả môn học</option>
+              <option v-for="s in subjects" :key="s.id" :value="s.id">{{ s.name }}</option>
+            </select>
+            <span class="material-symbols-outlined select-arrow">expand_more</span>
+          </div>
+          
+          <button class="btn-refresh" title="Làm mới">
+            <span class="material-symbols-outlined">refresh</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Table Section -->
+      <div class="table-container">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th style="width: 20%">Tên lớp</th>
+              <th style="width: 15%">Môn học</th>
+              <th style="width: 15%">Giáo viên</th>
+              <th style="width: 10%">Phòng</th>
+              <th style="width: 10%">Sĩ số</th>
+              <th style="width: 10%">Học phí</th>
+              <th style="width: 10%">Trạng thái</th>
+              <th class="text-right">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="cls in filteredClasses" :key="cls.id" class="table-row">
+              <td>
+                <div class="class-info-cell" @click="viewDetail(cls)" style="cursor: pointer;">
+                  <strong class="user-full-name">{{ cls.name }}</strong>
+                  <span class="user-email-text">Mã: {{ cls.class_code }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="class-badge-subject">{{ getSubjectName(cls.subject_id) }}</span>
+              </td>
+              <td>
+                <div class="user-info">
+                  <div class="avatar" style="background-color: #3b82f6;">{{ getTeacher(cls.teacher_id).initials }}</div>
+                  <div class="user-text">
+                    <p class="user-full-name">{{ getTeacher(cls.teacher_id).name }}</p>
+                  </div>
+                </div>
+              </td>
+              <td><span class="room-text">{{ getRoomCode(cls.room_id) }}</span></td>
+              <td>
+                <div class="capacity-indicator">
+                  <span class="capacity-text" :class="{ 'text-danger': cls.current_students >= cls.max_students }">
+                    {{ cls.current_students }}/{{ cls.max_students }}
+                  </span>
+                  <div class="progress-bg">
+                    <div class="progress-bar" :style="{ width: (cls.current_students / cls.max_students * 100) + '%' }"></div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="price-text">{{ formatPrice(cls.default_fee) }}đ</span></td>
+              <td>
+                <span class="badge" :class="getStatusClass(cls.status)">
+                  {{ cls.status === 'open' ? 'Đang mở' : cls.status === 'planned' ? 'Sắp mở' : 'Đã đóng' }}
+                </span>
+              </td>
+              <td class="text-right">
+                <div class="actions">
+                  <button class="action-btn" title="Chi tiết" @click="viewDetail(cls)">
+                    <span class="material-symbols-outlined">visibility</span>
+                  </button>
+                  <button class="action-btn" title="Sửa" @click="openEditModal(cls)">
+                    <span class="material-symbols-outlined">edit</span>
+                  </button>
+                  <button class="action-btn btn-delete" title="Xóa" @click="confirmDelete(cls)">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="filteredClasses.length === 0">
+              <td colspan="8" class="empty-state">Không tìm thấy lớp học nào.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-footer">
+        <p>Hiển thị <strong>{{ filteredClasses.length }}</strong> lớp học</p>
+      </div>
+    </div>
+
+    <!-- Form Modal -->
+    <Transition name="modal-fade">
+      <div v-if="isModalOpen" class="modal-backdrop" @click.self="isModalOpen = false">
+        <div class="modal-box">
+          <div class="modal-header">
+            <div class="modal-header-text">
+              <h2 class="modal-title">{{ isEditing ? 'Cập nhật Lớp học' : 'Thêm lớp học mới' }}</h2>
+              <p class="modal-subtitle">Cung cấp thông tin chi tiết để khởi tạo lớp học trong hệ thống.</p>
+            </div>
+            <button class="btn-close-minimal" @click="isModalOpen = false">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <form @submit.prevent="saveClass">
+            <div class="modal-body">
+              <div class="form-grid">
+                <div class="form-item span-2">
+                  <label class="form-label">Tên lớp học</label>
+                  <input v-model="form.name" type="text" placeholder="Ví dụ: IELTS Foundation - T8/2023" required class="form-input" />
+                </div>
+
+                <div class="form-item">
+                  <label class="form-label">Chọn Môn học</label>
+                  <div class="select-container">
+                    <select v-model="form.subject_id" required class="form-select">
+                      <option value="" disabled>Chọn môn học...</option>
+                      <option v-for="s in subjects" :key="s.id" :value="s.id">{{ s.name }}</option>
+                    </select>
+                    <span class="material-symbols-outlined select-icon-minimal">expand_more</span>
+                  </div>
+                </div>
+                <div class="form-item">
+                  <label class="form-label">Giáo viên giảng dạy</label>
+                  <div class="select-container">
+                    <select v-model="form.teacher_id" required class="form-select">
+                      <option value="" disabled>Chọn giáo viên...</option>
+                      <option v-for="t in teachers" :key="t.id" :value="t.id">{{ t.name }}</option>
+                    </select>
+                    <span class="material-symbols-outlined select-icon-minimal">expand_more</span>
+                  </div>
+                </div>
+
+                <div class="form-item">
+                  <label class="form-label">Phòng học</label>
+                  <div class="select-container">
+                    <select v-model="form.room_id" required class="form-select">
+                      <option value="" disabled>Chọn phòng học...</option>
+                      <option v-for="r in rooms" :key="r.id" :value="r.id">{{ r.code }}</option>
+                    </select>
+                    <span class="material-symbols-outlined select-icon-minimal">expand_more</span>
+                  </div>
+                </div>
+                
+                <div class="form-item">
+                  <label class="form-label">Sĩ số tối đa</label>
+                  <input v-model.number="form.max_students" type="number" class="form-input" />
+                </div>
+
+                <div class="form-item">
+                  <label class="form-label">Học phí (VNĐ)</label>
+                  <input v-model.number="form.default_fee" type="number" class="form-input" />
+                </div>
+
+                <div class="form-item">
+                  <label class="form-label">Trạng thái lớp</label>
+                  <div class="select-container">
+                    <select v-model="form.status" required class="form-select">
+                      <option value="planned">Sắp mở</option>
+                      <option value="open">Đang mở</option>
+                      <option value="closed">Đã đóng</option>
+                    </select>
+                    <span class="material-symbols-outlined select-icon-minimal">expand_more</span>
+                  </div>
+                </div>
+
+                <div class="form-item">
+                  <label class="form-label">Ngày khai giảng</label>
+                  <input v-model="form.start_date" type="date" class="form-input" />
+                </div>
+                <div class="form-item">
+                  <label class="form-label">Ngày kết thúc</label>
+                  <input v-model="form.end_date" type="date" class="form-input" />
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer-minimal">
+              <button type="button" class="btn btn-simple" @click="isModalOpen = false">Hủy bỏ</button>
+              <button type="submit" class="btn btn-solid-primary">Lưu thông tin</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Modal Detail View -->
+    <Transition name="modal-fade">
+      <div v-if="isDetailModalOpen" class="modal-backdrop" @click.self="isDetailModalOpen = false">
+        <div class="modal-box">
+          <div class="modal-header">
+            <div class="modal-header-text">
+              <h2 class="modal-title">{{ selectedClass?.name }}</h2>
+              <p class="modal-subtitle">Danh sách học viên đang theo học tại lớp này.</p>
+            </div>
+            <button class="btn-close-minimal" @click="isDetailModalOpen = false">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <div class="class-summary">
+              <div class="info-item">
+                <span class="label">Môn học</span>
+                <strong>{{ getSubjectName(selectedClass?.subject_id) }}</strong>
+              </div>
+              <div class="info-item">
+                <span class="label">Giáo viên</span>
+                <strong>{{ getTeacher(selectedClass?.teacher_id).name }}</strong>
+              </div>
+              <div class="info-item">
+                <span class="label">Sĩ số</span>
+                <strong :class="{ 'text-danger': selectedClass?.current_students >= selectedClass?.max_students }">
+                  {{ selectedClass?.current_students }} / {{ selectedClass?.max_students }}
+                </strong>
+              </div>
+            </div>
+
+            <div class="student-list-container">
+              <table class="user-table student-table">
+                <thead>
+                  <tr>
+                    <th>Học viên</th>
+                    <th>Mã HV</th>
+                    <th class="text-right">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="student in getEnrolledStudents(selectedClass?.id)" :key="student.id">
+                    <td>
+                      <div class="user-info">
+                        <div class="avatar" style="background-color: #3b82f6; width: 32px; height: 32px; font-size: 12px;">{{ student.full_name[0] }}</div>
+                        <span class="user-full-name">{{ student.full_name }}</span>
+                      </div>
+                    </td>
+                    <td><span class="code-badge">{{ student.student_code }}</span></td>
+                    <td class="text-right">
+                      <select @change="e => transferStudent(student.id, parseInt(e.target.value))" class="select-filter select-sm" style="width: auto; min-width: 0;">
+                        <option value="" selected disabled>Chuyển lớp...</option>
+                        <option v-for="c in classes.filter(c => c.id !== selectedClass.id)" :key="c.id" :value="c.id">
+                          {{ c.name }}
+                        </option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr v-if="getEnrolledStudents(selectedClass?.id).length === 0">
+                    <td colspan="3" class="empty-state">Chưa có học viên trong lớp này.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Delete Confirm Modal -->
+    <Transition name="modal-fade">
+      <div v-if="isDeleteModalOpen" class="modal-backdrop" @click.self="isDeleteModalOpen = false">
+        <div class="modal-box" style="max-width: 480px; text-align: center;">
+          <div class="modal-body" style="padding: 40px 32px;">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: #fef2f2; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+              <span class="material-symbols-outlined" style="font-size: 32px; color: #ef4444;">warning</span>
+            </div>
+            <h2 class="modal-title">Xác nhận xóa lớp học</h2>
+            <p style="color: #64748b; font-size: 14px; margin-top: 8px;">Bạn có chắc chắn muốn xóa lớp <strong>{{ classToDelete?.name }}</strong>? Hành động này không thể hoàn tác.</p>
+            
+            <div style="display: flex; gap: 12px; justify-content: center; margin-top: 32px;">
+              <button class="btn btn-simple" @click="isDeleteModalOpen = false">Hủy bỏ</button>
+              <button class="btn btn-solid-primary" style="background: #ef4444;" @click="executeDelete">Xác nhận xóa</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </div>
+</template>
+
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-.view-page {
-  font-family: 'Inter', sans-serif;
-  color: #1e293b;
-  padding: 32px;
-  background: #fdfdfd;
-  min-height: 100vh;
-}
-
-.shadow-sm {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.relative {
-  position: relative;
-}
-
-/* ===== HEADER ===== */
-.header-action {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-}
-
-.header-action h1 {
-  font-size: 28px;
-  font-weight: 800;
-  color: #1e293b;
-}
-
-.header-action p {
-  color: #64748b;
-  font-size: 14px;
-  margin-top: 4px;
-}
-
-.btn-primary-rounded {
-  background: #2563eb;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-  transition: 0.2s;
-}
-
-.btn-primary-rounded:hover {
-  background: #1d4ed8;
-  transform: translateY(-1px);
-}
-
-/* ===== BENTO STATS ===== */
-.stats-bento {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-bottom: 32px;
-}
-
-.mini-card {
-  background: #ffffff;
-  padding: 24px;
-  border-radius: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid #f1f5f9;
-}
-
-.mini-card .label {
-  font-size: 12px;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.mini-card h2 {
-  font-size: 32px;
-  font-weight: 800;
-  margin: 4px 0;
-}
-
-.mini-card .meta {
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.mini-card h2.primary {
-  color: #2563eb;
-}
-
-.mini-card h2.warning {
-  color: #f59e0b;
-}
-
-.mini-card .decor {
-  position: absolute;
-  right: -10px;
-  font-size: 64px;
-  opacity: 0.05;
-  color: #64748b;
-}
-
-/* ===== FILTER BAR ===== */
-.filter-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #ffffff;
-  padding: 16px 24px;
-  border-radius: 16px;
-  margin-bottom: 24px;
-  border: 1px solid #f1f5f9;
-}
-
-.filter-left {
-  display: flex;
-  gap: 16px;
-}
-
-.search-wrapper-v2 {
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 280px;
-}
-
-.search-wrapper-v2 input {
-  background: transparent;
-  border: none;
-  outline: none;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.select-wrapper-v2 {
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.select-wrapper-v2 select {
-  background: transparent;
-  border: none;
-  outline: none;
-  font-size: 14px;
-  font-weight: 600;
-  color: #475569;
-}
-
-.filter-right span {
-  font-size: 13px;
-  font-weight: 700;
-  color: #94a3b8;
-}
-
-/* ===== TABLE ===== */
-.table-wrapper {
-  background: #ffffff;
-  border-radius: 24px;
-  overflow: hidden;
-  border: 1px solid #f1f5f9;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table th {
-  background: #f8fafc;
-  text-align: left;
-  padding: 16px 24px;
-  font-size: 11px;
-  font-weight: 800;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.data-table td {
-  padding: 16px 24px;
-  border-top: 1px solid #f8fafc;
-  vertical-align: middle;
-}
-
-.class-title strong {
-  display: block;
-  font-size: 14px;
-  font-weight: 700;
-  color: #1e293b;
-}
-
-.class-title span {
-  font-size: 11px;
-  color: #94a3b8;
-  font-weight: 700;
-}
-
-.badge-subject-v2 {
-  background: #eef2ff;
-  color: #4338ca;
-  padding: 4px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.teacher-cell {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.mini-avatar {
-  width: 32px;
-  height: 32px;
-  background: #f1f5f9;
-  color: #64748b;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 12px;
-}
-
-.txt-room-v2 {
-  font-size: 13px;
-  font-weight: 700;
-  color: #64748b;
-}
-
-.capacity-indicator {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.capacity-indicator span {
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.mini-progress {
-  height: 4px;
-  width: 60px;
-  background: #f1f5f9;
-  border-radius: 2px;
-}
-
-.mini-progress .bar {
-  height: 100%;
-  background: #2563eb;
-  border-radius: 2px;
-}
-
-.txt-price-v2 {
-  font-size: 14px;
-  font-weight: 800;
-  color: #2563eb;
-}
-
-.badge-status-v2 {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 800;
-}
-
-.badge-status-v2.open {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.badge-status-v2.planned {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.badge-status-v2.closed {
-  background: #f1f5f9;
-  color: #475569;
-}
-
-.badge-status-v2 .dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.btn-group-v2 {
-  display: flex;
-  gap: 8px;
-}
-
-.icon-btn-v2 {
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: #f8fafc;
-  color: #64748b;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: 0.2s;
-}
-
-.icon-btn-v2:hover {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.icon-btn-v2.danger:hover {
-  background: #fef2f2;
-  color: #ef4444;
-}
-
-/* ===== MODALS (v3) ===== */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.premium-modal-v3 {
-  max-width: 760px;
-  background: #ffffff;
-  border-radius: 32px;
-  overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  margin: 20px;
-}
-
-.detail-modal {
-  max-width: 600px;
-}
-
-.close-btn-absolute {
-  position: absolute;
-  top: 24px;
-  right: 24px;
-  border: none;
-  background: transparent;
-  color: #94a3b8;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.close-btn-absolute:hover {
-  color: #1e293b;
-  transform: rotate(90deg);
-}
-
-.modal-header-v3 {
-  padding: 32px 32px 0 32px;
-}
-
-.modal-header-v3 h3 {
-  font-size: 22px;
-  font-weight: 800;
-  color: #1e293b;
-  margin-bottom: 8px;
-}
-
-.modal-header-v3 p {
-  font-size: 14px;
-  color: #64748b;
-  font-weight: 500;
-}
-
-.modal-form-v3 {
-  padding: 32px;
-}
-
-.form-grid-v3 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-.full-width {
-  grid-column: span 2;
-}
-
-.form-group-v3 {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-group-v3 label {
-  font-size: 12px;
-  font-weight: 800;
-  color: #1e293b;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.form-group-v3 input,
-.form-group-v3 select {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 500;
-  outline: none;
-}
-
-.input-with-icon {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-with-icon .material-symbols-outlined {
-  position: absolute;
-  left: 12px;
-  font-size: 20px;
-  color: #94a3b8;
-}
-
-.input-with-icon input {
-  padding-left: 44px;
-  width: 100%;
-}
-
-.radio-group-v3 {
-  display: flex;
-  gap: 16px;
-  padding: 8px 0;
-}
-
-.radio-label-v3 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.modal-footer-v3 {
-  grid-column: span 2;
-  display: flex;
-  justify-content: flex-end;
-  gap: 16px;
-  margin-top: 32px;
-}
-
-.btn-submit-v3 {
-  background: #2563eb;
-  color: white;
-  border: none;
-  padding: 14px 28px;
-  border-radius: 16px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.btn-text-v3 {
-  background: transparent;
-  border: none;
-  color: #64748b;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-/* ===== DETAIL VIEW ===== */
-.detail-body-v3 {
-  padding: 32px;
-}
-
-.class-info-summary {
-  background: #f8fafc;
-  border-radius: 20px;
-  padding: 20px;
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 32px;
-  border: 1px solid #f1f5f9;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.info-item .label {
-  font-size: 11px;
-  font-weight: 800;
-  color: #94a3b8;
-  text-transform: uppercase;
-}
-
-.info-item strong {
-  font-size: 14px;
-  color: #1e293b;
-}
-
-.student-list-container {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.simple-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.simple-table th {
-  text-align: left;
-  font-size: 11px;
-  color: #94a3b8;
-  padding: 0 0 12px 0;
-}
-
-.simple-table td {
-  padding: 12px 0;
-  border-top: 1px solid #f1f5f9;
-}
-
-.student-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.mini-avatar.blue {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.student-item span {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.transfer-box {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.select-sm {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #475569;
-  outline: none;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.select-sm:hover {
-  border-color: #cbd5e1;
-  background: #e2e8f0;
-}
-
-.code-tag {
-  font-family: monospace;
-  font-size: 12px;
-  font-weight: 700;
-  color: #6366f1;
-  background: #eef2ff;
-  padding: 2px 8px;
-  border-radius: 6px;
-}
-
-.btn-secondary-sm {
-  background: #f1f5f9;
-  color: #475569;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-/* ===== DELETE CONFIRM MODAL ===== */
-.delete-confirm-modal {
-  max-width: 480px;
-  background: #ffffff;
-  border-radius: 28px;
-  padding: 40px 36px 32px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  text-align: center;
-  margin: 20px;
-}
-
-.delete-warning-icon {
-  width: 72px;
-  height: 72px;
-  background: #fef2f2;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 20px;
-}
-
-.delete-title {
-  font-size: 20px;
-  font-weight: 800;
-  color: #1e293b;
-  margin-bottom: 10px;
-}
-
-.delete-subtitle {
-  font-size: 14px;
-  color: #64748b;
-  line-height: 1.6;
-  margin-bottom: 20px;
-}
-
-.delete-class-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-left: 4px solid #ef4444;
-  border-radius: 14px;
-  padding: 16px 20px;
-  text-align: left;
-  margin-bottom: 20px;
-}
-
-.delete-card-label {
-  font-size: 10px;
-  font-weight: 800;
-  color: #94a3b8;
-  letter-spacing: 0.08em;
-  display: block;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-.delete-card-name {
-  font-size: 15px;
-  font-weight: 800;
-  color: #1e293b;
-}
-
-.delete-warning-note {
-  font-size: 12px;
-  color: #94a3b8;
-  font-style: italic;
-  line-height: 1.6;
-  margin-bottom: 28px;
-}
-
-.delete-footer {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
-
-.btn-cancel-v3 {
-  padding: 12px 28px;
-  background: #f1f5f9;
-  border: none;
-  border-radius: 14px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #475569;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.btn-cancel-v3:hover {
-  background: #e2e8f0;
-}
-
-.btn-danger-v3 {
-  padding: 12px 28px;
-  background: #ef4444;
-  border: none;
-  border-radius: 14px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #ffffff;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-  transition: 0.2s;
-}
-
-.btn-danger-v3:hover {
-  background: #dc2626;
-  transform: translateY(-1px);
-}
-
-.empty-state {
-  text-align: center;
-  color: #94a3b8;
-  padding: 40px 0;
-  font-size: 14px;
-}
-
-/* Animations */
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal-content {
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.modal-enter-from .modal-content {
-  transform: scale(0.9) translateY(20px);
-}
+/* Base Styles */
+.admin-page { background-color: #f8fafc; min-height: 100vh; padding: 0 4px; font-family: 'Inter', system-ui, -apple-system, sans-serif; color: #1e293b; }
+.headers { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.title { font-size: 24px; font-weight: 700; color: #0f172a; margin: 0 0 4px 0; }
+.subtitle { font-size: 14px; color: #64748b; margin: 0; }
+
+.header-actions { display: flex; gap: 12px; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; }
+.btn-primary { background-color: #2563eb; color: #ffffff; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2), 0 2px 4px -2px rgba(37, 99, 235, 0.1); }
+.btn-primary:hover { background-color: #1d4ed8; transform: translateY(-1px); box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.25); }
+.btn-secondary { background-color: #ffffff; color: #475569; border-color: #e2e8f0; }
+.btn-secondary:hover { background-color: #f8fafc; border-color: #cbd5e1; }
+.btn-refresh { width: 40px; height: 40px; padding: 0; justify-content: center; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; color: #64748b; display: flex; align-items: center; cursor: pointer; transition: 0.2s;}
+.btn-refresh:hover { background-color: #f8fafc; color: #2563eb; border-color: #cbd5e1; }
+
+/* Stats Cards */
+.stats-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 28px; }
+.stat-card { background-color: #ffffff; padding: 20px; border-radius: 12px; display: flex; align-items: center; gap: 16px; border: 1px solid #f1f5f9; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05); transition: transform 0.2s ease; }
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+.stat-icon-box { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.stat-icon-box .material-symbols-outlined { font-size: 24px; }
+.stat-label { font-size: 13px; font-weight: 600; color: #64748b; margin: 0 0 2px 0; }
+.stat-value { font-size: 22px; font-weight: 700; color: #0f172a; margin: 0; }
+
+/* Content Box */
+.content-box { background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); overflow: hidden; }
+
+/* Toolbar */
+.toolbar { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; gap: 16px; flex-wrap: wrap; }
+.search-wrapper { position: relative; flex: 1; max-width: 400px; }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 20px; }
+.input-search { width: 100%; padding: 10px 12px 10px 40px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; background-color: #f8fafc; transition: all 0.2s; outline: none; }
+.input-search:focus { background-color: #ffffff; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+
+.filters { display: flex; gap: 12px; align-items: center; }
+.select-wrapper { position: relative; min-width: 180px; }
+.select-filter { width: 100%; appearance: none; padding: 10px 36px 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-weight: 500; color: #475569; background-color: #ffffff; cursor: pointer; outline: none; }
+.select-arrow { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
+
+/* Table */
+.table-container { min-height: 300px; position: relative; }
+.user-table { width: 100%; border-collapse: collapse; }
+.user-table th { text-align: left; padding: 14px 24px; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.025em; background-color: #f8fafc; border-bottom: 1px solid #f1f5f9; }
+.table-row { transition: background-color 0.2s ease; }
+.table-row:hover { background-color: #f8fafc; }
+.user-table td { padding: 16px 24px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+
+/* Common Typo */
+.user-info { display: flex; align-items: center; gap: 12px; }
+.avatar { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ffffff; font-weight: 700; font-size: 14px; }
+.user-full-name { font-size: 14px; font-weight: 600; color: #1e293b; margin: 0; }
+.user-email-text { font-size: 12px; color: #64748b; margin: 0; }
+
+/* Specifics for Classes */
+.class-info-cell { display: flex; flex-direction: column; gap: 2px; }
+.class-badge-subject { background: #eff6ff; color: #2563eb; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+.room-text { font-size: 13px; font-weight: 600; color: #475569; }
+.price-text { font-size: 13px; font-weight: 600; color: #2563eb; }
+.code-badge { font-family: monospace; font-size: 12px; font-weight: 700; color: #2563eb; background: #eff6ff; padding: 2px 8px; border-radius: 6px; }
+
+.capacity-indicator { display: flex; flex-direction: column; gap: 6px; }
+.capacity-text { font-size: 13px; font-weight: 600; color: #475569; }
+.progress-bg { height: 4px; width: 60px; background: #f1f5f9; border-radius: 2px; }
+.progress-bar { height: 100%; background: #2563eb; border-radius: 2px; }
+.text-danger { color: #ef4444 !important; }
+
+/* Detail elements */
+.class-summary { background: #f8fafc; border-radius: 12px; padding: 16px; display: flex; justify-content: space-around; margin-bottom: 24px; border: 1px solid #e2e8f0; }
+.info-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.info-item .label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; }
+.info-item strong { font-size: 14px; color: #1e293b; }
+
+.student-list-container { max-height: 300px; overflow-y: auto; }
+.student-table th { padding: 8px 12px; }
+.student-table td { padding: 12px; }
+.select-sm { padding: 6px 12px; font-size: 12px; }
+
+/* Badges */
+.badge { display: inline-flex; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+.badge-success { background-color: #ecfdf5; color: #10b981; }
+.badge-warning { background-color: #fffbeb; color: #f59e0b; }
+.badge-danger { background-color: #fef2f2; color: #ef4444; }
+.badge-gray { background-color: #f1f5f9; color: #475569; }
+
+/* Actions */
+.actions { display: flex; justify-content: flex-end; gap: 4px; }
+.action-btn { width: 34px; height: 34px; border-radius: 6px; border: 1px solid transparent; background-color: transparent; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.action-btn:hover { background-color: #f1f5f9; color: #2563eb; }
+.btn-delete:hover { color: #dc2626; background-color: #fef2f2; }
+.action-btn .material-symbols-outlined { font-size: 20px; }
+.text-right { text-align: right; }
+
+/* Empty state & Footer */
+.empty-state { text-align: center; padding: 60px 0; color: #94a3b8; }
+.table-footer { padding: 16px 24px; font-size: 13px; color: #64748b; }
+
+/* Modal Styles */
+.modal-backdrop { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.modal-box { background-color: #ffffff; width: 100%; max-width: 580px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); border: 1px solid #f1f5f9; animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+.modal-header { padding: 24px 28px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start; }
+.modal-title { font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 4px 0; }
+.modal-subtitle { font-size: 13px; color: #64748b; margin: 0; }
+.btn-close-minimal { background: transparent; border: none; color: #94a3b8; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s; }
+.btn-close-minimal:hover { background-color: #f1f5f9; color: #475569; }
+
+/* Modal Body */
+.modal-body { padding: 28px; }
+.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.form-item.span-2 { grid-column: span 2; }
+.form-label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px; }
+.form-input, .form-select { width: 100%; padding: 10px 14px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #0f172a; outline: none; transition: all 0.2s; }
+.form-input:focus, .form-select:focus { background-color: #ffffff; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+
+.select-container { position: relative; }
+.select-icon-minimal { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; font-size: 20px; }
+.form-select { appearance: none; padding-right: 40px; }
+
+/* Modal Footer */
+.modal-footer-minimal { padding: 20px 28px; background-color: #f8fafc; border-top: 1px solid #f1f5f9; border-radius: 0 0 16px 16px; display: flex; justify-content: flex-end; gap: 12px; }
+.btn-simple { background-color: transparent; border: 1px solid #e2e8f0; color: #475569; font-weight: 600; padding: 10px 18px; border-radius: 8px; cursor: pointer;}
+.btn-simple:hover { background-color: #f1f5f9; border-color: #cbd5e1; }
+.btn-solid-primary { background-color: #2563eb; color: #ffffff; border: none; font-weight: 600; padding: 10px 18px; border-radius: 8px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); cursor: pointer;}
+.btn-solid-primary:hover { background-color: #1d4ed8; }
+
+.modal-fade-enter-active, .modal-fade-leave-active { transition: opacity 0.2s ease; }
+.modal-fade-enter-from, .modal-fade-leave-to { opacity: 0; }
 </style>

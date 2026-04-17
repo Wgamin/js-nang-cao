@@ -1,159 +1,306 @@
+<script setup>
+import { ref, computed } from 'vue'
+
+const alertStudents = ref([
+  { id: 1, name: 'Nguyễn Minh Tuấn', studentId: 'STU-9921', className: 'IELTS Master - L2', absentCount: 8, totalCount: 24, rate: 33, lastAbsent: 'Hôm qua, 14:30', avatarColor: 'blue', initials: 'MT' },
+  { id: 2, name: 'Trần Thị Mai Anh', studentId: 'STU-8845', className: 'TOEIC 750+ Elite', absentCount: 5, totalCount: 20, rate: 25, lastAbsent: '12/10/2023', avatarColor: 'rose', initials: 'MA' },
+]);
+
+const searchQuery = ref('')
+const classFilter = ref('')
+
+const filteredStudents = computed(() => {
+  return alertStudents.value.filter(s => {
+    const matchesSearch = s.name.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
+                          s.studentId.toLowerCase().includes(searchQuery.value.toLowerCase())
+    const matchesClass = !classFilter.value || s.className === classFilter.value
+    return matchesSearch && matchesClass
+  })
+})
+
+function getAvatarColor(color) {
+  const map = {
+    'blue': '#3b82f6',
+    'rose': '#e11d48',
+    'orange': '#ea580c',
+    'indigo': '#4f46e5'
+  }
+  return map[color] || '#cbd5e1'
+}
+</script>
+
 <template>
-  <div class="space-y-8">
+  <div class="admin-page">
     <!-- Header Section -->
-    <div class="mb-10">
-      <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">Cảnh Báo Chuyên Cần</h2>
-      <p class="text-on-surface-variant max-w-2xl leading-relaxed">Theo dõi và quản lý các học viên có tỉ lệ vắng học vượt mức quy định (20%). Hệ thống tự động cập nhật danh sách dựa trên dữ liệu điểm danh hàng ngày.</p>
+    <div class="headers">
+      <div class="header-left">
+        <h1 class="title">Cảnh Báo Chuyên Cần</h1>
+        <p class="subtitle max-w-2xl">Theo dõi và quản lý các học viên có tỉ lệ vắng học vượt mức quy định (20%). Hệ thống tự động cập nhật danh sách dựa trên dữ liệu điểm danh hàng ngày.</p>
+      </div>
     </div>
 
-    <!-- Bento Grid Layout -->
-    <div class="grid grid-cols-12 gap-6">
-      <div class="col-span-12 lg:col-span-4 bg-primary text-white p-8 rounded-xl relative overflow-hidden flex flex-col justify-between shadow-xl shadow-primary/20">
-        <div class="relative z-10">
-          <span class="inline-flex items-center px-3 py-1 bg-white/20 rounded-full text-xs font-bold tracking-widest uppercase mb-4">Live Alert</span>
-          <h3 class="text-4xl font-black mb-1">42</h3>
-          <p class="text-primary-fixed-dim text-lg font-medium">Học viên đang bị cảnh báo</p>
+    <!-- Stats Grid Layout -->
+    <div class="dashboard-grid">
+      <div class="primary-card">
+        <div class="z-10">
+          <span class="live-badge">Live Alert</span>
+          <h3 class="hero-number">42</h3>
+          <p class="hero-text">Học viên đang bị cảnh báo</p>
         </div>
-        <div class="relative z-10 mt-8">
-          <p class="text-sm opacity-80 mb-4 leading-relaxed">Tăng 12% so với tháng trước. Vui lòng liên hệ phụ huynh để cập nhật tình hình học tập.</p>
-          <button class="px-6 py-2 bg-white text-primary rounded-lg font-bold text-sm hover:bg-primary-fixed transition-colors">
-            Xuất báo cáo PDF
-          </button>
+        <div class="z-10 mt-4">
+          <p class="hero-desc">Tăng 12% so với tháng trước. Vui lòng liên hệ phụ huynh để cập nhật tình hình học tập.</p>
+          <button class="btn btn-white">Xuất báo cáo PDF</button>
         </div>
-        <div class="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
       </div>
 
-      <div class="col-span-12 lg:col-span-8 grid grid-cols-2 gap-6">
-        <div class="bg-surface-container-lowest p-6 rounded-xl flex items-center gap-6 border border-outline-variant/10 shadow-sm">
-          <div class="w-14 h-14 bg-error-container rounded-xl flex items-center justify-center text-error">
-            <span class="material-symbols-outlined text-3xl">trending_up</span>
+      <div class="stats-sub-grid">
+        <div class="stat-box">
+          <div class="stat-icon-box" style="background-color: #fef2f2; color: #ef4444;">
+            <span class="material-symbols-outlined">trending_up</span>
           </div>
           <div>
-            <p class="text-label-md text-on-surface-variant font-semibold uppercase tracking-wider mb-1">Tỉ lệ vắng trung bình</p>
-            <p class="text-2xl font-black text-on-surface">14.5%</p>
+            <p class="stat-label uppercase tracking-widest">Tỉ lệ vắng trung bình</p>
+            <p class="stat-value">14.5%</p>
           </div>
         </div>
-        <div class="bg-surface-container-lowest p-6 rounded-xl flex items-center gap-6 border border-outline-variant/10 shadow-sm">
-          <div class="w-14 h-14 bg-secondary-container rounded-xl flex items-center justify-center text-on-secondary-container">
-            <span class="material-symbols-outlined text-3xl">history</span>
+        
+        <div class="stat-box">
+          <div class="stat-icon-box" style="background-color: #eff6ff; color: #3b82f6;">
+            <span class="material-symbols-outlined">history</span>
           </div>
           <div>
-            <p class="text-label-md text-on-surface-variant font-semibold uppercase tracking-wider mb-1">Phản hồi phụ huynh</p>
-            <p class="text-2xl font-black text-on-surface">28/42</p>
+            <p class="stat-label uppercase tracking-widest">Phản hồi phụ huynh</p>
+            <p class="stat-value">28/42</p>
           </div>
         </div>
-        <div class="col-span-2 bg-surface-container-low p-6 rounded-xl border-none">
-          <div class="flex justify-between items-center mb-4">
-            <h4 class="font-bold text-on-surface">Diễn biến nghỉ học trong tuần</h4>
-            <div class="flex gap-2">
-              <span class="w-3 h-3 bg-primary rounded-full"></span>
-              <span class="text-xs font-bold text-on-surface-variant uppercase">Tuần này</span>
+        
+        <div class="chart-box">
+          <div class="chart-header">
+            <h4>Diễn biến nghỉ học trong tuần</h4>
+            <div class="chart-legend">
+              <span class="legend-dot"></span>
+              <span class="legend-text">Tuần này</span>
             </div>
           </div>
-          <div class="flex items-end justify-between h-24 px-4">
-            <div class="w-12 bg-primary/20 rounded-t-lg h-[40%]"></div>
-            <div class="w-12 bg-primary/20 rounded-t-lg h-[60%]"></div>
-            <div class="w-12 bg-primary/20 rounded-t-lg h-[30%]"></div>
-            <div class="w-12 bg-primary rounded-t-lg h-[85%]"></div>
-            <div class="w-12 bg-primary/20 rounded-t-lg h-[50%]"></div>
-            <div class="w-12 bg-primary/20 rounded-t-lg h-[45%]"></div>
-            <div class="w-12 bg-primary/20 rounded-t-lg h-[20%]"></div>
+          <div class="chart-bars">
+            <div class="bar" style="height: 40%; opacity: 0.2"></div>
+            <div class="bar" style="height: 60%; opacity: 0.2"></div>
+            <div class="bar" style="height: 30%; opacity: 0.2"></div>
+            <div class="bar" style="height: 85%; opacity: 1"></div>
+            <div class="bar" style="height: 50%; opacity: 0.2"></div>
+            <div class="bar" style="height: 45%; opacity: 0.2"></div>
+            <div class="bar" style="height: 20%; opacity: 0.2"></div>
           </div>
-          <div class="flex justify-between mt-2 text-[10px] font-bold text-on-surface-variant opacity-60">
+          <div class="chart-labels">
             <span>THỨ 2</span><span>THỨ 3</span><span>THỨ 4</span><span>THỨ 5</span><span>THỨ 6</span><span>THỨ 7</span><span>CN</span>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="col-span-12 mt-4">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="text-xl font-black text-on-surface">Danh sách học viên vắng nhiều</h3>
-          <div class="flex gap-3">
-            <select class="bg-surface-container-lowest border-none text-xs font-bold py-2 rounded-lg focus:ring-primary/20 shadow-sm">
-              <option>Tất cả các lớp</option>
-              <option>IELTS Foundation - A2</option>
-              <option>Business English - B1</option>
+    <!-- Main Table Card -->
+    <div class="section-title-wrap">
+      <h3 class="section-title">Danh sách học viên vắng nhiều</h3>
+    </div>
+
+    <div class="content-box">
+      <div class="toolbar">
+        <div class="search-wrapper">
+          <span class="material-symbols-outlined search-icon">search</span>
+          <input v-model="searchQuery" type="text" class="input-search" placeholder="Tìm theo ID hoặc Tên học viên..." />
+        </div>
+        
+        <div class="filters">
+          <div class="select-wrapper">
+            <select v-model="classFilter" class="select-filter">
+              <option value="">Tất cả các lớp</option>
+              <option value="IELTS Master - L2">IELTS Master - L2</option>
+              <option value="TOEIC 750+ Elite">TOEIC 750+ Elite</option>
+              <option value="Business English - B1">Business English - B1</option>
             </select>
-            <button class="bg-surface-container-lowest p-2 rounded-lg text-on-surface-variant shadow-sm hover:text-primary border border-outline-variant/10">
-              <span class="material-symbols-outlined">filter_list</span>
-            </button>
+            <span class="material-symbols-outlined select-arrow">expand_more</span>
           </div>
         </div>
-        <div class="bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant/10 shadow-sm">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-surface-container-low">
-                <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Học viên</th>
-                <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Lớp học</th>
-                <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest text-center">Buổi vắng</th>
-                <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Tỉ lệ vắng</th>
-                <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Ngày vắng gần nhất</th>
-                <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest text-right">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-outline-variant/10">
-              <tr v-for="student in alertStudents" :key="student.id" class="hover:bg-surface-container-high transition-colors group">
-                <td class="px-6 py-5">
-                  <div class="flex items-center gap-3">
-                    <img :src="student.avatar" class="w-10 h-10 rounded-full object-cover" />
-                    <div>
-                      <p class="font-bold text-on-surface">{{ student.name }}</p>
-                      <p class="text-xs text-on-surface-variant">ID: {{ student.studentId }}</p>
-                    </div>
+      </div>
+
+      <!-- Table Section -->
+      <div class="table-container">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th style="width: 25%">Học viên</th>
+              <th style="width: 20%">Lớp học</th>
+              <th style="width: 15%" class="text-center">Buổi vắng</th>
+              <th style="width: 15%">Tỉ lệ vắng</th>
+              <th style="width: 15%">Ngày vắng gần nhất</th>
+              <th style="width: 10%" class="text-right">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="student in filteredStudents" :key="student.id" class="table-row">
+              <td>
+                <div class="user-info">
+                  <div class="avatar" :style="{ backgroundColor: getAvatarColor(student.avatarColor) }">{{ student.initials }}</div>
+                  <div>
+                    <p class="user-full-name">{{ student.name }}</p>
+                    <p class="user-email-text">ID: {{ student.studentId }}</p>
                   </div>
-                </td>
-                <td class="px-6 py-5">
-                  <span class="text-sm font-medium text-on-surface-variant">{{ student.className }}</span>
-                </td>
-                <td class="px-6 py-5 text-center">
-                  <span class="text-sm font-black text-on-surface">{{ student.absentCount }}/{{ student.totalCount }}</span>
-                </td>
-                <td class="px-6 py-5">
-                  <div class="flex items-center gap-3">
-                    <div class="flex-1 h-2 bg-surface-container-high rounded-full overflow-hidden">
-                      <div class="h-full bg-error rounded-full" :style="{ width: student.rate + '%' }"></div>
-                    </div>
-                    <span class="text-sm font-black text-error">{{ student.rate }}%</span>
+                </div>
+              </td>
+              <td>
+                <span class="user-full-name" style="font-size: 13px;">{{ student.className }}</span>
+              </td>
+              <td class="text-center">
+                <span class="user-full-name">{{ student.absentCount }}/{{ student.totalCount }}</span>
+              </td>
+              <td>
+                <div class="progress-wrapper">
+                  <div class="progress-bar">
+                    <div class="progress-fill" :style="{ width: student.rate + '%' }"></div>
                   </div>
-                </td>
-                <td class="px-6 py-5">
-                  <span class="text-sm text-on-surface-variant">{{ student.lastAbsent }}</span>
-                </td>
-                <td class="px-6 py-5 text-right">
-                  <div class="flex justify-end gap-2">
-                    <button class="p-2 bg-error/10 text-error rounded-lg hover:bg-error hover:text-white transition-all active:scale-95">
-                      <span class="material-symbols-outlined text-[20px]">call</span>
-                    </button>
-                    <button class="p-2 bg-primary/10 text-primary rounded-lg hover:bg-primary hover:text-white transition-all active:scale-95">
-                      <span class="material-symbols-outlined text-[20px]">visibility</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="px-6 py-6 bg-surface-container-low flex items-center justify-between">
-            <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Trang 1 trên 4</p>
-            <div class="flex gap-2">
-              <button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-lowest text-on-surface shadow-sm opacity-50 cursor-not-allowed">
-                <span class="material-symbols-outlined">chevron_left</span>
-              </button>
-              <button class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-white shadow-lg shadow-primary/20">1</button>
-              <button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-lowest text-on-surface shadow-sm hover:bg-surface-container-highest transition-colors">2</button>
-              <button class="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-container-lowest text-on-surface shadow-sm hover:bg-surface-container-highest transition-colors">
-                <span class="material-symbols-outlined">chevron_right</span>
-              </button>
-            </div>
-          </div>
+                  <span class="progress-text">{{ student.rate }}%</span>
+                </div>
+              </td>
+              <td>
+                <span class="user-email-text">{{ student.lastAbsent }}</span>
+              </td>
+              <td class="text-right">
+                <div class="actions">
+                  <button class="action-btn" title="Gọi phụ huynh">
+                    <span class="material-symbols-outlined" style="color: #ef4444;">call</span>
+                  </button>
+                  <button class="action-btn" title="Xem chi tiết">
+                    <span class="material-symbols-outlined" style="color: #2563eb;">visibility</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="filteredStudents.length === 0">
+              <td colspan="6" class="empty-state">
+                Không tìm thấy học viên nào phù hợp.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Footer -->
+      <div class="table-footer flex-footer">
+        <p>Hiển thị <strong>1-{{ filteredStudents.length }}</strong> của {{ alertStudents.length }} học viên</p>
+        <div class="pagination">
+          <button class="page-btn"><span class="material-symbols-outlined">chevron_left</span></button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn"><span class="material-symbols-outlined">chevron_right</span></button>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
-const alertStudents = [
-  { id: 1, name: 'Nguyễn Minh Tuấn', studentId: 'STU-9921', className: 'IELTS Master - L2', absentCount: 8, totalCount: 24, rate: 33, lastAbsent: 'Hôm qua, 14:30', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBS3fWw9y8l2UClUAXG1vkdG3Yfm4xogcq0sIvZc8LH_JB1NWleAslCIfCncNOqN6N1JzcqV38MkjRfRVDb6Vw1pIAeOBgChu6H-nL9nvscN4-IPvRfPXbMNYBgIPMM0XGIlylWF4yJMvyY0f8CQKobNnmr6jYFmQ6cZtbdr_0YKaeB58xF2rUVhIYsdKeLCTUnTaLow4WzrSY2fkoiBSi9F8cY8dy2vz3VSovbw4yntmBC-4tzHZlsVlNWQ_r3WzzmoxXhAzRvKDPj' },
-  { id: 2, name: 'Trần Thị Mai Anh', studentId: 'STU-8845', className: 'TOEIC 750+ Elite', absentCount: 5, totalCount: 20, rate: 25, lastAbsent: '12/10/2023', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB7l0T-uOZ8bcZESFifVj2PQXe9LolSdGFsOs1pO8n9JXK6CJzRT1foV8epc9jAdH-pR2x1oGOIMz8YC35IV14FFByHG2rAHkKtmdDTogUGEUPjzpC-4TIRMoEfjiGc-kvFFI9EbSLtMrLGGolC4HsIFrMlCIDB3uPT7xMs3fsgTr0s9YV4EzuLX7TwbkykZVjkgBA6vj4hLijusTkrKgrM1Yj0RyEtRmPJ3ya1M5dAU6xbk9KM1vTrlD6fY8wBrwNUZBZHm_pVjzTR' },
-];
-</script>
+<style scoped>
+/* Base Styles */
+.admin-page { background-color: #f8fafc; min-height: 100vh; padding: 0 4px; font-family: 'Inter', system-ui, -apple-system, sans-serif; color: #1e293b; }
+.headers { margin-bottom: 32px; }
+.title { font-size: 28px; font-weight: 800; color: #0f172a; margin: 0 0 8px 0; }
+.subtitle { font-size: 14px; color: #64748b; margin: 0; line-height: 1.6; }
+.max-w-2xl { max-width: 42rem; }
+
+/* Grid System */
+.dashboard-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; margin-bottom: 32px; }
+.stats-sub-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 24px; }
+.chart-box { grid-column: span 2; background-color: #ffffff; padding: 24px; border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); }
+
+/* Primary Alert Card */
+.primary-card { background-color: #2563eb; color: #ffffff; padding: 32px; border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2); }
+.primary-card::after { content: ''; position: absolute; right: -32px; bottom: -32px; width: 192px; height: 192px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; filter: blur(24px); pointer-events: none; }
+.live-badge { display: inline-flex; align-items: center; padding: 4px 12px; background: rgba(255, 255, 255, 0.2); border-radius: 99px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; }
+.hero-number { font-size: 48px; font-weight: 900; margin: 0 0 4px 0; }
+.hero-text { font-size: 16px; font-weight: 600; color: #bfdbfe; margin: 0; }
+.hero-desc { font-size: 13px; opacity: 0.9; margin: 0 0 20px 0; line-height: 1.5; }
+.z-10 { position: relative; z-index: 10; }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; }
+.btn-white { background: #ffffff; color: #2563eb; }
+.btn-white:hover { background: #f8fafc; transform: translateY(-1px); }
+
+/* Small Stat Boxes */
+.stat-box { background-color: #ffffff; padding: 24px; border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); display: flex; align-items: center; gap: 20px; }
+.stat-icon-box { width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.stat-icon-box .material-symbols-outlined { font-size: 28px; }
+.stat-label { font-size: 11px; font-weight: 700; color: #64748b; margin: 0 0 4px 0; display: block; }
+.uppercase { text-transform: uppercase; }
+.tracking-widest { letter-spacing: 0.1em; }
+.stat-value { font-size: 24px; font-weight: 800; color: #0f172a; margin: 0; }
+
+/* Chart Area */
+.chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.chart-header h4 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 0; }
+.chart-legend { display: flex; align-items: center; gap: 8px; }
+.legend-dot { width: 10px; height: 10px; background: #2563eb; border-radius: 50%; }
+.legend-text { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; }
+
+.chart-bars { display: flex; align-items: flex-end; justify-content: space-between; height: 100px; padding: 0 16px; margin-bottom: 12px; }
+.bar { width: 40px; background: #2563eb; border-radius: 6px 6px 0 0; }
+.chart-labels { display: flex; justify-content: space-between; padding: 0 16px; font-size: 10px; font-weight: 700; color: #94a3b8; }
+.chart-labels span { width: 40px; text-align: center; }
+
+/* Table Section Title */
+.section-title-wrap { margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+.section-title { font-size: 18px; font-weight: 800; color: #0f172a; margin: 0; }
+
+/* Content Box */
+.content-box { background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); overflow: hidden; }
+
+/* Toolbar */
+.toolbar { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; gap: 16px; flex-wrap: wrap; }
+.search-wrapper { position: relative; flex: 1; max-width: 400px; }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 20px; }
+.input-search { width: 100%; padding: 10px 12px 10px 40px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; background-color: #f8fafc; transition: all 0.2s; outline: none; }
+.input-search:focus { background-color: #ffffff; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+
+.filters { display: flex; gap: 12px; align-items: center; }
+.select-wrapper { position: relative; min-width: 220px; }
+.select-filter { width: 100%; appearance: none; padding: 10px 36px 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-weight: 500; color: #475569; background-color: #ffffff; cursor: pointer; outline: none; }
+.select-arrow { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
+
+/* Table */
+.table-container { min-height: 200px; position: relative; overflow-x: auto; }
+.user-table { width: 100%; border-collapse: collapse; }
+.user-table th { text-align: left; padding: 14px 24px; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; background-color: #f8fafc; border-bottom: 1px solid #f1f5f9; }
+.table-row { transition: background-color 0.2s ease; }
+.table-row:hover { background-color: #f8fafc; }
+.user-table td { padding: 16px 24px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+
+/* Custom elements */
+.user-info { display: flex; align-items: center; gap: 12px; }
+.avatar { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ffffff; font-weight: 700; font-size: 13px; }
+.user-full-name { font-size: 14px; font-weight: 600; color: #1e293b; margin: 0; }
+.user-email-text { font-size: 12px; color: #64748b; margin: 0; }
+
+.progress-wrapper { display: flex; align-items: center; gap: 12px; }
+.progress-bar { flex: 1; height: 6px; background: #f1f5f9; border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: #ef4444; border-radius: 99px; }
+.progress-text { font-size: 13px; font-weight: 800; color: #ef4444; min-width: 32px; }
+
+/* Actions */
+.actions { display: flex; justify-content: flex-end; gap: 4px; }
+.action-btn { width: 34px; height: 34px; border-radius: 6px; border: 1px solid transparent; background-color: #f8fafc; color: #94a3b8; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.action-btn:hover { background-color: #f1f5f9; filter: brightness(0.95); }
+.action-btn .material-symbols-outlined { font-size: 20px; }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+
+/* Empty state & Footer */
+.empty-state { text-align: center; padding: 60px 0; color: #94a3b8; }
+.table-footer { padding: 16px 24px; font-size: 13px; color: #64748b; border-top: 1px solid #f1f5f9; background-color: #f8fafc; }
+.flex-footer { display: flex; justify-content: space-between; align-items: center; }
+.pagination { display: flex; gap: 8px; }
+.page-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; font-size: 12px; font-weight: 700; color: #475569; background: #ffffff; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.2s; }
+.page-btn:hover { background: #f1f5f9; }
+.page-btn.active { background: #2563eb; color: #ffffff; border-color: #2563eb; }
+
+@media (max-width: 1024px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
+</style>
