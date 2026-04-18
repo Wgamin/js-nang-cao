@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chuyển lớp &amp; Hủy đăng ký - Quản lý Học viên</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#360f00",
+                        "surface-container": "#eceef0",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-background": "#191c1e",
+                        "primary-fixed": "#dbe1ff",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#31447b",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "surface-tint": "#0053db",
+                        "secondary-container": "#acbfff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "surface-container-lowest": "#ffffff",
+                        "background": "#f7f9fb",
+                        "tertiary-fixed": "#ffdbcd",
+                        "surface-variant": "#e0e3e5",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "inverse-surface": "#2d3133",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-secondary-fixed": "#00174b",
+                        "surface-dim": "#d8dadc",
+                        "primary": "#004ac6",
+                        "tertiary-container": "#bc4800",
+                        "surface-container-highest": "#e0e3e5",
+                        "outline-variant": "#c3c6d7",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#f2f4f6",
+                        "surface": "#f7f9fb",
+                        "on-primary-fixed": "#00174b",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-primary-container": "#eeefff",
+                        "on-secondary-container": "#394c84",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#191c1e",
+                        "secondary": "#495c95",
+                        "on-tertiary-container": "#ffede6",
+                        "on-surface-variant": "#434655",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#2563eb",
+                        "error": "#ba1a1a",
+                        "tertiary": "#943700",
+                        "surface-container-high": "#e6e8ea",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "surface-bright": "#f7f9fb",
+                        "outline": "#737686"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#f7f9fb] dark:bg-slate-900 flex justify-between items-center px-8 py-3 font-['Inter'] leading-relaxed flat no shadows">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold text-blue-700 dark:text-blue-400">Quản lý Học viên</span>
+<div class="hidden md:flex space-x-6">
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors" href="#">Lịch học</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors" href="#">Báo cáo</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors" href="#">Cấu hình</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg font-semibold hover:bg-primary-container transition-all">Ghi danh mới</button>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-blue-50 p-2 rounded-full transition-colors" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-blue-50 p-2 rounded-full transition-colors" data-icon="settings">settings</span>
+<img alt="Avatar quản trị viên" class="w-8 h-8 rounded-full bg-surface-variant" data-alt="Close up professional portrait of a smiling woman in business attire with soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwnuVvUhT66iJh3yTRrzleGaVrcyd3X-RdXovAbnXWyIo0_TkTdBAmCm4ENbQ1DEgUt24OCIJSkopohe9uEgg3PXCbbiN2WSaztgiRIf3hVzFNeyxJEuwjrTgbWaBvoWp08IyuNVrf_DkD1b7U0K2P_-cvpmzjFgeppnZs7OJ_43JFbdHphI4HMzryhYf3ztHrqXX7BbMYFVMhw-5eo2OEV1h06f-pSsGVHjmqwQUzD_czXdodHCpAEM7gKTNf4cS32dxvJFI0NWFc"/>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="hidden md:flex h-screen w-64 fixed left-0 top-0 bg-white dark:bg-slate-950 border-r border-slate-100 dark:border-slate-800 flex-col p-4 space-y-2 z-40 pt-20">
+<div class="mb-6 px-2">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+</div>
+<div>
+<h2 class="font-black text-blue-700 text-sm">Education Center</h2>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Hệ thống quản lý</p>
+</div>
+</div>
+</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:translate-x-1 transition-transform duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium text-sm">Tổng quan</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:translate-x-1 transition-transform duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="how_to_reg">how_to_reg</span>
+<span class="font-medium text-sm">Đăng ký lớp</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:translate-x-1 transition-transform duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-medium text-sm">Học phí</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-lg font-bold" href="#">
+<span class="material-symbols-outlined" data-icon="swap_horiz">swap_horiz</span>
+<span class="text-sm">Chuyển lớp</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:translate-x-1 transition-transform duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-medium text-sm">Học viên</span>
+</a>
+</nav>
+<div class="mt-auto space-y-1">
+<button class="w-full bg-surface-container-high text-primary px-4 py-2 rounded-lg text-sm font-semibold mb-4 transition-all active:scale-95">Báo cáo nhanh</button>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span class="font-medium text-sm">Trợ giúp</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas (Modal Overlay Effect) -->
+<main class="md:ml-64 pt-24 px-8 pb-12 min-h-screen bg-surface">
+<div class="max-w-4xl mx-auto">
+<!-- Breadcrumbs -->
+<div class="flex items-center gap-2 text-sm text-on-surface-variant mb-6">
+<span>Học viên</span>
+<span class="material-symbols-outlined text-xs" data-icon="chevron_right">chevron_right</span>
+<span>Nguyễn Minh Anh</span>
+<span class="material-symbols-outlined text-xs" data-icon="chevron_right">chevron_right</span>
+<span class="text-primary font-medium">Thay đổi trạng thái</span>
+</div>
+<!-- Bento Layout Content Wrapper -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- Student Info Card (Side Info) -->
+<div class="lg:col-span-4 space-y-6">
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10">
+<div class="flex flex-col items-center text-center">
+<div class="relative mb-4">
+<img alt="Avatar học viên" class="w-24 h-24 rounded-2xl object-cover bg-surface-container shadow-inner" data-alt="Portrait of a young Vietnamese male student with short dark hair and a bright smile, wearing a casual navy polo shirt" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbW7zCTD0GadRubSc2WUKrHhxpgiUiQ1wWSFKF1_akWR-pW6TrcXxc0XCqZJKmon_ab5jx5S3D7NYxAYK_TcsVgP1zTNYBFmXsbm3xdUfDYGfwzP9OU3b2IpallwAAIrt17zNXYF4oP-sQmzdOW4llVTt92CWadpL1DgM4BmTHDLi6LAi-n8DYNEiprnOLlaG9Yk6FxUEOOdMpI2UicYAGI0Na94FVRFa8XJS4GYlE5pnpCPsvAGRP_deQv5ZYeAF62y2wSgvFpPIv"/>
+<div class="absolute -bottom-1 -right-1 bg-green-500 w-5 h-5 rounded-full border-4 border-white"></div>
+</div>
+<h3 class="text-xl font-bold text-on-surface">Nguyễn Minh Anh</h3>
+<p class="text-sm text-on-surface-variant">HV-2024-0089</p>
+</div>
+<div class="mt-6 space-y-4">
+<div class="bg-surface-container-low rounded-lg p-3">
+<span class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest block mb-1">Lớp hiện tại</span>
+<p class="text-sm font-semibold text-primary">IELTS Mastery (6.5+)</p>
+<p class="text-xs text-on-surface-variant">Mã lớp: IELTS-A2-24</p>
+</div>
+<div class="flex justify-between items-center text-sm px-1">
+<span class="text-on-surface-variant">Ngày nhập học:</span>
+<span class="font-medium">12/01/2024</span>
+</div>
+<div class="flex justify-between items-center text-sm px-1">
+<span class="text-on-surface-variant">Học phí đã đóng:</span>
+<span class="font-medium text-green-600">8.500.000đ</span>
+</div>
+</div>
+</div>
+<div class="bg-primary/5 rounded-xl p-4 border border-primary/10">
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="info">info</span>
+<div class="text-xs leading-relaxed text-on-surface-variant">
+                                Việc chuyển lớp hoặc hủy đăng ký sẽ ảnh hưởng đến lộ trình học tập và bảng cân đối tài chính của học viên.
+                            </div>
+</div>
+</div>
+</div>
+<!-- Main Action Modal UI -->
+<div class="lg:col-span-8 bg-surface-container-lowest rounded-2xl shadow-xl border border-outline-variant/10 overflow-hidden">
+<!-- Modal Header -->
+<div class="px-8 py-6 border-b border-surface-container">
+<h2 class="text-2xl font-extrabold tracking-tight text-on-surface">Cập nhật Trạng thái Đăng ký</h2>
+<p class="text-on-surface-variant text-sm mt-1">Vui lòng chọn phương thức thay đổi bên dưới.</p>
+</div>
+<!-- Tabs/Options Selection -->
+<div class="px-8 mt-6">
+<div class="flex bg-surface-container-low p-1.5 rounded-xl">
+<button class="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-white shadow-sm text-primary font-bold transition-all">
+<span class="material-symbols-outlined" data-icon="swap_horiz">swap_horiz</span>
+                                Chuyển lớp
+                            </button>
+<button class="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined" data-icon="cancel">cancel</span>
+                                Hủy đăng ký
+                            </button>
+</div>
+</div>
+<!-- Action Content: Chuyển lớp -->
+<div class="p-8 space-y-6">
+<!-- Option 1 View: Chuyển lớp -->
+<div class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Chọn lớp mới</label>
+<div class="relative">
+<select class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-on-surface appearance-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
+<option>-- Chọn lớp học mới --</option>
+<option selected="">TOEIC Intensive (Target 750+)</option>
+<option>English for Communication (Level 3)</option>
+<option>Academic Writing Masterclass</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Lý do chuyển</label>
+<select class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-on-surface appearance-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
+<option>Thay đổi thời gian biểu</option>
+<option>Điều chỉnh trình độ</option>
+<option>Yêu cầu cá nhân</option>
+<option>Khác</option>
+</select>
+</div>
+</div>
+<!-- Financial Calculation - Asymmetric Layout -->
+<div class="bg-surface-container-low rounded-2xl p-6">
+<h4 class="text-sm font-bold text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="calculate">calculate</span>
+                                    Tính toán học phí chênh lệch
+                                </h4>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-sm border-b border-outline-variant/20 pb-3">
+<span class="text-on-surface-variant">Giá trị lớp cũ còn lại:</span>
+<span class="font-medium">4.200.000đ</span>
+</div>
+<div class="flex justify-between items-center text-sm border-b border-outline-variant/20 pb-3">
+<span class="text-on-surface-variant">Học phí lớp mới:</span>
+<span class="font-medium">5.500.000đ</span>
+</div>
+<div class="flex justify-between items-center pt-2">
+<span class="font-bold text-on-surface">Chênh lệch cần đóng:</span>
+<div class="text-right">
+<span class="text-lg font-black text-primary">1.300.000đ</span>
+<p class="text-[10px] text-on-surface-variant italic">Bao gồm phí chuyển đổi 200.000đ</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Additional Notes -->
+<div class="space-y-2">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Ghi chú thêm</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-4 text-sm focus:ring-2 focus:ring-primary/10 focus:border-primary outline-none transition-all" placeholder="Nhập ghi chú chi tiết về việc thay đổi này..." rows="3"></textarea>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="flex items-center justify-between pt-6 mt-6 border-t border-surface-container">
+<button class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+                                Quay lại
+                            </button>
+<div class="flex gap-3">
+<button class="px-8 py-3 rounded-xl font-bold bg-primary text-on-primary shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+                                    Xác nhận thay đổi
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Alternate Context: Success Toast/Notification UI (Hidden but implied by design system) -->
+<div class="mt-8 bg-surface-container-high/30 backdrop-blur-md rounded-2xl p-6 border border-white/50 flex items-center justify-between max-w-4xl mx-auto">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Lịch sử thay đổi gần đây</p>
+<p class="text-xs text-on-surface-variant">Cập nhật lần cuối: 3 ngày trước bởi Admin1</p>
+</div>
+</div>
+<button class="text-primary text-sm font-bold hover:underline">Xem tất cả</button>
+</div>
+</div>
+</main>
+<!-- Mobile Nav Bar (Responsive Rule) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-surface-container-lowest border-t border-outline-variant/10 px-6 py-3 flex justify-between items-center z-50">
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] font-medium">Tổng quan</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" data-icon="swap_horiz">swap_horiz</span>
+<span class="text-[10px] font-bold">Chuyển lớp</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-[10px] font-medium">Học viên</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[10px] font-medium">Cài đặt</span>
+</button>
+</nav>
+</body></html>
