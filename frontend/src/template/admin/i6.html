@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduPay Curator - Quản lý Thanh toán</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#394c84",
+                        "error-container": "#ffdad6",
+                        "surface": "#f7f9fb",
+                        "primary": "#004ac6",
+                        "inverse-surface": "#2d3133",
+                        "on-secondary-fixed": "#00174b",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "surface-container-highest": "#e0e3e5",
+                        "secondary-container": "#acbfff",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c3c6d7",
+                        "tertiary": "#943700",
+                        "primary-container": "#2563eb",
+                        "on-tertiary-container": "#ffede6",
+                        "on-surface-variant": "#434655",
+                        "surface-dim": "#d8dadc",
+                        "secondary": "#495c95",
+                        "tertiary-fixed": "#ffdbcd",
+                        "surface-container": "#eceef0",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#f2f4f6",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "surface-tint": "#0053db",
+                        "on-tertiary-fixed": "#360f00",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed-variant": "#31447b",
+                        "error": "#ba1a1a",
+                        "on-background": "#191c1e",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#dbe1ff",
+                        "on-primary-fixed": "#00174b",
+                        "surface-container-high": "#e6e8ea",
+                        "primary-fixed": "#dbe1ff",
+                        "on-primary-container": "#eeefff",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "on-surface": "#191c1e",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "tertiary-container": "#bc4800",
+                        "surface-bright": "#f7f9fb",
+                        "outline": "#737686",
+                        "inverse-on-surface": "#eff1f3",
+                        "background": "#f7f9fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- Top Navigation Shell -->
+<header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-[0_20px_40px_rgba(0,74,198,0.05)] font-inter tracking-tight leading-relaxed docked full-width top-0 sticky z-50">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-8">
+<div class="text-xl font-bold tracking-tighter text-blue-700 dark:text-blue-400">EduPay Curator</div>
+<nav class="hidden md:flex gap-6">
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors" href="#">Dashboard</a>
+<a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-600 pb-1 font-semibold" href="#">Transactions</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors" href="#">Invoices</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors" href="#">Students</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-gradient-to-r from-primary to-primary-container text-white px-6 py-2 rounded-lg font-medium shadow-sm hover:translate-y-[-1px] transition-transform active:opacity-80">
+                    Collect Tuition
+                </button>
+<div class="flex gap-2">
+<span class="material-symbols-outlined p-2 text-slate-500 hover:bg-slate-100/50 rounded-full cursor-pointer" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined p-2 text-slate-500 hover:bg-slate-100/50 rounded-full cursor-pointer" data-icon="settings">settings</span>
+</div>
+<img alt="Admin Avatar" class="w-10 h-10 rounded-full object-cover ring-2 ring-blue-100" data-alt="Close-up portrait of a professional male administrator in a clean modern office setting with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbvQ_L_jPKYyuKl-MxOUqojeoy0hU_sE5Qp4UM07qWo6G0ZhHA8cnY3CRw8mL0fz7XiL_i31bnSkiqmcX_SoT293BfAVx-3HJoFUNDXbFDnmy6Jewx8nHkUNG1S_bsNBrKu6PYdXbRr_GjIwC03z0B7aUssL7fBLHZMy0TUZTuV-yOM143oLLDmOkgA67PqbMzfdYfsnJjkgf6Pk0i9reUlLgwSgJGqFa_fs6IC_Fg5e4ADHFkYGxuKfRCInlT-P92DYKR4fyZlZ3a"/>
+</div>
+</div>
+</header>
+<div class="flex">
+<!-- Sidebar Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-slate-50 dark:bg-slate-950 flex-col h-full p-4 gap-2 pt-24 hidden lg:flex">
+<div class="mb-6 px-2">
+<div class="text-lg font-black text-blue-800 dark:text-blue-300">EduManager</div>
+<div class="text-xs text-slate-500 font-medium uppercase tracking-widest">Premium Admin</div>
+</div>
+<div class="flex flex-col gap-1">
+<button class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 transition-all rounded-lg">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-medium">Overview</span>
+</button>
+<button class="flex items-center gap-3 px-4 py-2.5 bg-white shadow-sm text-blue-700 rounded-lg font-medium">
+<span class="material-symbols-outlined" data-icon="payments" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="text-sm">Payments</span>
+</button>
+<button class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 transition-all rounded-lg">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="text-sm font-medium">Receipts</span>
+</button>
+<button class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 transition-all rounded-lg">
+<span class="material-symbols-outlined" data-icon="running_with_errors">running_with_errors</span>
+<span class="text-sm font-medium">Debtors</span>
+</button>
+<button class="flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 transition-all rounded-lg">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="text-sm font-medium">Reports</span>
+</button>
+</div>
+<div class="mt-auto flex flex-col gap-1">
+<button class="flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:translate-x-1 transition-all">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="text-sm">Help Center</span>
+</button>
+<button class="flex items-center gap-3 px-4 py-2.5 text-error hover:translate-x-1 transition-all">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="text-sm">Logout</span>
+</button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 lg:ml-64 p-8">
+<div class="max-w-screen-xl mx-auto">
+<!-- Hero Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
+<div>
+<h1 class="text-3xl font-extrabold tracking-tight text-on-surface mb-2">Quản lý Thanh toán</h1>
+<p class="text-on-surface-variant text-body-lg">Theo dõi doanh thu và lịch sử giao dịch học phí thời gian thực.</p>
+</div>
+<button class="flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container text-white px-8 py-4 rounded-xl font-bold text-lg shadow-[0_10px_20px_rgba(0,74,198,0.15)] hover:scale-[1.02] transition-transform active:scale-95">
+<span class="material-symbols-outlined" data-icon="add_circle" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+                        Thu tiền học phí
+                    </button>
+</div>
+<!-- Bento Statistics Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<!-- Stat Card 1 -->
+<div class="bg-surface-container-lowest p-8 rounded-xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4">
+<span class="material-symbols-outlined text-primary/10 text-6xl" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<div class="relative z-10">
+<p class="text-on-surface-variant font-medium label-md mb-2">Tổng doanh thu đã thu</p>
+<h2 class="text-3xl font-bold text-on-surface">2.450.000.000 <span class="text-sm font-normal text-slate-400">VNĐ</span></h2>
+<div class="mt-4 flex items-center gap-2 text-green-600 text-sm font-semibold">
+<span class="material-symbols-outlined text-base" data-icon="trending_up">trending_up</span>
+                                +12.5% tháng này
+                            </div>
+</div>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-surface-container-low p-8 rounded-xl relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4">
+<span class="material-symbols-outlined text-secondary/10 text-6xl" data-icon="pending_actions">pending_actions</span>
+</div>
+<div class="relative z-10">
+<p class="text-on-surface-variant font-medium label-md mb-2">Doanh thu chờ thanh toán</p>
+<h2 class="text-3xl font-bold text-on-surface">420.500.000 <span class="text-sm font-normal text-slate-400">VNĐ</span></h2>
+<div class="mt-4 flex items-center gap-2 text-secondary text-sm font-semibold">
+<span class="material-symbols-outlined text-base" data-icon="schedule">schedule</span>
+                                85 hóa đơn đang xử lý
+                            </div>
+</div>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-error-container/30 p-8 rounded-xl relative overflow-hidden border border-error-container/20">
+<div class="absolute top-0 right-0 p-4">
+<span class="material-symbols-outlined text-error/10 text-6xl" data-icon="warning">warning</span>
+</div>
+<div class="relative z-10">
+<p class="text-error font-medium label-md mb-2">Doanh thu quá hạn</p>
+<h2 class="text-3xl font-bold text-error">98.200.000 <span class="text-sm font-normal text-error/60">VNĐ</span></h2>
+<div class="mt-4 flex items-center gap-2 text-error text-sm font-semibold">
+<span class="material-symbols-outlined text-base" data-icon="event_busy">event_busy</span>
+                                Cần nhắc phí ngay
+                            </div>
+</div>
+</div>
+</div>
+<!-- Transaction Table Section -->
+<div class="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.02)] border border-slate-100">
+<div class="px-8 py-6 flex justify-between items-center bg-slate-50/50">
+<h3 class="text-lg font-bold text-on-surface">Danh sách các đợt thanh toán</h3>
+<div class="flex gap-3">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl" data-icon="search">search</span>
+<input class="pl-10 pr-4 py-2 bg-white border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 w-64 shadow-sm" placeholder="Tìm giao dịch..." type="text"/>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 bg-white rounded-lg text-sm font-medium border border-slate-200 hover:bg-slate-50">
+<span class="material-symbols-outlined text-lg" data-icon="filter_list">filter_list</span>
+                                Lọc
+                            </button>
+</div>
+</div>
+<div class="overflow-x-auto no-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="px-8 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Mã giao dịch</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Học viên</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Hóa đơn</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Số tiền</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Ngày thanh toán</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Hình thức</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Người thu</th>
+<th class="px-8 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Trạng thái</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-8 py-5 font-mono text-sm font-medium text-primary">#TRX-9821</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">NL</div>
+<span class="font-semibold text-on-surface">Nguyễn Lan Anh</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm text-slate-600">INV-2024-001</td>
+<td class="px-6 py-5 font-bold text-on-surface">4.500.000đ</td>
+<td class="px-6 py-5 text-sm text-slate-500">12/05/2024</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+<span class="material-symbols-outlined text-sm" data-icon="account_balance">account_balance</span>
+                                            Chuyển khoản
+                                        </span>
+</td>
+<td class="px-6 py-5 text-sm text-slate-600">Admin_Phuong</td>
+<td class="px-8 py-5">
+<span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100/50 text-green-700 border border-green-200">Paid</span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-8 py-5 font-mono text-sm font-medium text-primary">#TRX-9822</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-xs">TM</div>
+<span class="font-semibold text-on-surface">Trần Minh Quân</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm text-slate-600">INV-2024-005</td>
+<td class="px-6 py-5 font-bold text-on-surface">2.000.000đ</td>
+<td class="px-6 py-5 text-sm text-slate-500">11/05/2024</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+<span class="material-symbols-outlined text-sm" data-icon="payments">payments</span>
+                                            Tiền mặt
+                                        </span>
+</td>
+<td class="px-6 py-5 text-sm text-slate-600">Staff_Hoang</td>
+<td class="px-8 py-5">
+<span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100/50 text-amber-700 border border-amber-200">Partial</span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-8 py-5 font-mono text-sm font-medium text-primary">#TRX-9825</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-700 font-bold text-xs">LH</div>
+<span class="font-semibold text-on-surface">Lê Hoàng Nam</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm text-slate-600">INV-2024-012</td>
+<td class="px-6 py-5 font-bold text-on-surface">8.200.000đ</td>
+<td class="px-6 py-5 text-sm text-slate-500">10/05/2024</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+<span class="material-symbols-outlined text-sm" data-icon="account_balance">account_balance</span>
+                                            Chuyển khoản
+                                        </span>
+</td>
+<td class="px-6 py-5 text-sm text-slate-600">Admin_Phuong</td>
+<td class="px-8 py-5">
+<span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100/50 text-green-700 border border-green-200">Paid</span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-8 py-5 font-mono text-sm font-medium text-primary">#TRX-9828</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">VH</div>
+<span class="font-semibold text-on-surface">Võ Hồng Ngọc</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm text-slate-600">INV-2024-009</td>
+<td class="px-6 py-5 font-bold text-on-surface">3.450.000đ</td>
+<td class="px-6 py-5 text-sm text-slate-500">09/05/2024</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+<span class="material-symbols-outlined text-sm" data-icon="account_balance">account_balance</span>
+                                            Chuyển khoản
+                                        </span>
+</td>
+<td class="px-6 py-5 text-sm text-slate-600">Admin_Phuong</td>
+<td class="px-8 py-5">
+<span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100/50 text-green-700 border border-green-200">Paid</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-8 py-6 bg-slate-50/30 flex items-center justify-between">
+<p class="text-sm text-slate-500">Hiển thị 4 trong số 128 giao dịch</p>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg border border-slate-200 hover:bg-white text-slate-400 disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-10 h-10 rounded-lg bg-primary text-white font-bold text-sm">1</button>
+<button class="w-10 h-10 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 font-bold text-sm text-slate-600">2</button>
+<button class="w-10 h-10 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 font-bold text-sm text-slate-600">3</button>
+<button class="p-2 rounded-lg border border-slate-200 hover:bg-white text-slate-600">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Auxiliary Section: Recent Invoices & Analytics -->
+<div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div class="bg-surface-container-low rounded-2xl p-6 border border-slate-100">
+<div class="flex justify-between items-center mb-6">
+<h4 class="font-bold text-on-surface">Xu hướng thu phí</h4>
+<span class="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded">6 THÁNG QUA</span>
+</div>
+<div class="h-48 flex items-end justify-between gap-2 px-2">
+<div class="w-full bg-primary-container/20 rounded-t-lg relative group h-[40%]">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">450M</div>
+</div>
+<div class="w-full bg-primary-container/40 rounded-t-lg relative group h-[60%]">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">620M</div>
+</div>
+<div class="w-full bg-primary-container/60 rounded-t-lg relative group h-[55%]">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">580M</div>
+</div>
+<div class="w-full bg-primary-container/80 rounded-t-lg relative group h-[75%]">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">810M</div>
+</div>
+<div class="w-full bg-primary rounded-t-lg relative group h-[90%] shadow-[0_4px_12px_rgba(0,74,198,0.3)]">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">940M</div>
+</div>
+<div class="w-full bg-primary/90 rounded-t-lg relative group h-[65%]">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-on-surface text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">690M</div>
+</div>
+</div>
+<div class="flex justify-between mt-4 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+<span>T12</span><span>T1</span><span>T2</span><span>T3</span><span>T4</span><span>T5</span>
+</div>
+</div>
+<div class="bg-gradient-to-br from-on-secondary-container to-blue-900 rounded-2xl p-8 text-white flex flex-col justify-between relative overflow-hidden">
+<img alt="Background decoration" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-30" data-alt="Abstract smooth flow of blue and teal waves with soft glowing lights and professional business atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkNOYMq3uau1kzr7D1OyLOrDSOUH1b6dWlcvgyh_Aj_-qHJDiAHlAumGcyA93SqAg6elZ_v_I8Ak5m6RTNywXj5alXkvM2jQrS-EQItGwYwREoDDJF-51jxKw7PnHXA2tWLWCwef4zK7DCgkYxQGwLWZx0LXRhkTFR63ke4Stc4CFmN51WE2w4je-Ve93QLuKfYblH2U_ytrS7RsWESBVrEf3MwhT-9O68ZNW8DtrGfMPuhPwQrMKb0cFF9AqW36NeZ_y_BzXjN1rV"/>
+<div class="relative z-10">
+<h4 class="text-xl font-bold mb-2">Báo cáo Tài chính Tháng 5</h4>
+<p class="text-blue-100/80 text-sm mb-6 leading-relaxed">Dữ liệu doanh thu của bạn đã tăng trưởng vượt bậc so với cùng kỳ năm ngoái. Hãy xem chi tiết các nguồn thu chính.</p>
+<div class="flex gap-4">
+<button class="px-5 py-2.5 bg-white text-blue-900 rounded-lg text-sm font-bold shadow-lg hover:bg-blue-50 transition-colors">Tải Báo Cáo PDF</button>
+<button class="px-5 py-2.5 bg-white/10 text-white border border-white/20 rounded-lg text-sm font-bold hover:bg-white/20 transition-colors">Chi Tiết</button>
+</div>
+</div>
+<div class="mt-8 relative z-10 flex items-center gap-4">
+<div class="p-3 bg-white/10 rounded-full backdrop-blur-md">
+<span class="material-symbols-outlined text-white" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div class="text-xs font-medium text-blue-100 leading-snug">AI Gợi ý: Có 12 học sinh sắp đến hạn đóng phí lớp IELTS 6.5. Gửi thông báo tự động?</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Mobile Navigation Bar -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-slate-100 px-6 py-3 flex justify-between items-center z-50">
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] font-bold">TỔNG QUAN</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" data-icon="payments" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="text-[10px] font-bold">THANH TOÁN</span>
+</button>
+<div class="-mt-12 bg-primary p-4 rounded-full shadow-lg ring-4 ring-surface">
+<span class="material-symbols-outlined text-white" data-icon="add">add</span>
+</div>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="text-[10px] font-bold">HÓA ĐƠN</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[10px] font-bold">HỌC VIÊN</span>
+</button>
+</div>
+</body></html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Đăng nhập | EduManager</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#943700",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#2563eb",
+                        "surface-container": "#eceef0",
+                        "on-tertiary-fixed": "#360f00",
+                        "secondary-container": "#acbfff",
+                        "surface-container-high": "#e6e8ea",
+                        "on-error": "#ffffff",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "on-background": "#191c1e",
+                        "inverse-primary": "#b4c5ff",
+                        "on-tertiary-container": "#ffede6",
+                        "inverse-surface": "#2d3133",
+                        "surface-dim": "#d8dadc",
+                        "primary": "#004ac6",
+                        "secondary-fixed": "#dbe1ff",
+                        "outline-variant": "#c3c6d7",
+                        "on-surface": "#191c1e",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-secondary-container": "#394c84",
+                        "surface-variant": "#e0e3e5",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#eeefff",
+                        "tertiary-fixed": "#ffdbcd",
+                        "background": "#f7f9fb",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-primary-fixed": "#00174b",
+                        "surface": "#f7f9fb",
+                        "surface-bright": "#f7f9fb",
+                        "surface-container-low": "#f2f4f6",
+                        "on-surface-variant": "#434655",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-secondary-fixed": "#00174b",
+                        "outline": "#737686",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#7d2d00",
+                        "tertiary-container": "#bc4800",
+                        "surface-tint": "#0053db",
+                        "inverse-on-surface": "#eff1f3",
+                        "tertiary-fixed-dim": "#ffb596",
+                        "secondary": "#495c95",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-secondary-fixed-variant": "#31447b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-background min-h-screen flex items-center justify-center p-6">
+<!-- Main Container -->
+<main class="w-full max-w-md">
+<!-- Logo & Branding -->
+<div class="text-center mb-10">
+<div class="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary mb-4 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-3xl" data-icon="school">school</span>
+</div>
+<h1 class="text-3xl font-extrabold tracking-tight text-on-surface">EduManager</h1>
+<p class="text-on-surface-variant mt-2 font-medium">Hệ thống quản lý trung tâm giáo dục</p>
+</div>
+<!-- Login Card -->
+<div class="surface-container-low rounded-xl p-8 shadow-sm">
+<div class="mb-8">
+<h2 class="text-xl font-semibold text-on-surface">Chào mừng trở lại</h2>
+<p class="text-sm text-on-surface-variant mt-1">Vui lòng đăng nhập vào tài khoản của bạn</p>
+</div>
+<form class="space-y-6">
+<!-- Email Input -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface" for="email">Địa chỉ Email</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[20px]" data-icon="mail">mail</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-3 bg-surface-container-lowest border-outline-variant/15 rounded-lg focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all duration-200 placeholder:text-outline/50" id="email" name="email" placeholder="username@email.com" required="" type="email"/>
+</div>
+</div>
+<!-- Password Input -->
+<div class="space-y-2">
+<div class="flex items-center justify-between">
+<label class="block text-sm font-medium text-on-surface" for="password">Mật khẩu</label>
+<a class="text-sm font-medium text-primary hover:text-on-primary-fixed-variant transition-colors" href="#">Quên mật khẩu?</a>
+</div>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[20px]" data-icon="lock">lock</span>
+</div>
+<input class="block w-full pl-10 pr-10 py-3 bg-surface-container-lowest border-outline-variant/15 rounded-lg focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all duration-200 placeholder:text-outline/50" id="password" name="password" placeholder="••••••••" required="" type="password"/>
+<button class="absolute inset-y-0 right-0 pr-3 flex items-center text-outline hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]" data-icon="visibility">visibility</span>
+</button>
+</div>
+</div>
+<!-- Remember Me -->
+<div class="flex items-center">
+<input class="h-4 w-4 rounded border-outline-variant/30 text-primary focus:ring-primary/20 bg-surface-container-lowest" id="remember" name="remember" type="checkbox"/>
+<label class="ml-2 block text-sm text-on-surface-variant" for="remember">Ghi nhớ đăng nhập</label>
+</div>
+<!-- Login Button -->
+<button class="w-full flex items-center justify-center px-4 py-3.5 border border-transparent rounded-lg shadow-sm text-base font-semibold text-on-primary bg-gradient-to-r from-primary to-primary-container hover:opacity-90 active:scale-[0.98] transition-all duration-200" type="submit">
+                    Đăng nhập
+                </button>
+</form>
+<!-- Bottom Action -->
+<div class="mt-8 pt-6 border-t border-outline-variant/10 text-center">
+<p class="text-sm text-on-surface-variant">
+                    Chưa có tài khoản? 
+                    <a class="font-semibold text-primary hover:text-on-primary-fixed-variant transition-colors" href="#">Liên hệ Quản trị viên</a>
+</p>
+</div>
+</div>
+<!-- Footer Meta -->
+<footer class="mt-12 text-center">
+<p class="text-xs text-outline font-medium tracking-wide">
+                © 2024 EDUMANAGER. ALL RIGHTS RESERVED.
+            </p>
+<div class="flex justify-center space-x-4 mt-3">
+<a class="text-xs text-outline hover:text-primary transition-colors" href="#">Hỗ trợ</a>
+<span class="text-outline-variant/20">•</span>
+<a class="text-xs text-outline hover:text-primary transition-colors" href="#">Điều khoản</a>
+<span class="text-outline-variant/20">•</span>
+<a class="text-xs text-outline hover:text-primary transition-colors" href="#">Bảo mật</a>
+</div>
+</footer>
+</main>
+<!-- Background Decoration (Subtle Layers) -->
+<div class="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
+<div class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[120px]"></div>
+<div class="absolute top-[60%] -right-[5%] w-[30%] h-[30%] rounded-full bg-secondary-container/10 blur-[100px]"></div>
+</div>
+</body></html>
