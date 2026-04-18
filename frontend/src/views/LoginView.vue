@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import api from '@/utils/api'
 
 const router = useRouter()
-const email = ref('')
+const username = ref('')
 const password = ref('')
 const showPassword = ref(false)
 const rememberLogin = ref(false)
@@ -12,22 +12,34 @@ const isLoading = ref(false)
 const errorMessage = ref('')
 
 const handleLogin = async () => {
+    if (!username.value || !password.value) {
+        errorMessage.value = 'Vui lòng điền đầy đủ thông tin.'
+        return;
+    }
+
     isLoading.value = true;
     errorMessage.value = '';
     
     try {
-        if (email.value && password.value) {
-            // Giả lập xử lý đăng nhập
-            setTimeout(() => {
-                router.push('/admin/dashboard')
-                isLoading.value = false;
-            }, 800);
+        const response = await api.post('/login', {
+            username: username.value,
+            password: password.value
+        });
+
+        if (response && response.access_token) {
+            // Lưu token và thông tin user
+            localStorage.setItem('token', response.access_token);
+            localStorage.setItem('user', JSON.stringify(response.user));
+            
+            // Chuyển hướng
+            router.push('/admin/dashboard');
         } else {
-            errorMessage.value = 'Vui lòng điền đầy đủ thông tin.'
-            isLoading.value = false;
+            errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại.';
         }
     } catch (error) {
-        errorMessage.value = 'Tài khoản hoặc mật khẩu không chính xác.'
+        console.error('Login error:', error);
+        errorMessage.value = error.message || 'Tài khoản hoặc mật khẩu không chính xác.';
+    } finally {
         isLoading.value = false;
     }
 }
@@ -64,16 +76,16 @@ const handleLogin = async () => {
             {{ errorMessage }}
           </div>
 
-          <!-- Email Input -->
+          <!-- Username Input -->
           <div class="form-group">
-            <label for="email">Địa chỉ Email</label>
+            <label for="username">Tên đăng nhập</label>
             <div class="input-container">
-              <span class="material-symbols-outlined input-icon">mail</span>
+              <span class="material-symbols-outlined input-icon">person</span>
               <input 
-                id="email" 
-                v-model="email"
-                type="email" 
-                placeholder="username@email.com" 
+                id="username" 
+                v-model="username"
+                type="text" 
+                placeholder="Nhập tên đăng nhập" 
                 required 
               />
             </div>

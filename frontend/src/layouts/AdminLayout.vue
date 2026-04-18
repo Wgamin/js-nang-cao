@@ -49,10 +49,10 @@
           </button>
           <div class="user-profile">
             <div class="user-info">
-              <span class="user-name">Admin Edu</span>
-              <span class="user-role">Quản trị viên</span>
+              <span class="user-name">{{ user.full_name }}</span>
+              <span class="user-role">{{ user.role }}</span>
             </div>
-            <img src="https://ui-avatars.com/api/?name=Admin+Edu&background=0D8ABC&color=fff" alt="Avatar" class="avatar" />
+            <img :src="`https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=1d4ed8&color=fff`" alt="Avatar" class="avatar" />
           </div>
         </div>
       </header>
@@ -66,9 +66,16 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+
+// Lấy thông tin user từ localStorage
+const user = computed(() => {
+  const userData = localStorage.getItem('user');
+  return userData ? JSON.parse(userData) : { full_name: 'Người dùng', role: 'admin' };
+});
 
 const navItems = [
   { name: 'Bảng điều khiển', path: '/admin/dashboard', icon: 'dashboard' },
@@ -84,6 +91,11 @@ const navItems = [
 ];
 
 const handleLogout = () => {
+  // Xóa session
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  
+  // Chuyển về login
   router.push('/login');
 };
 </script>
