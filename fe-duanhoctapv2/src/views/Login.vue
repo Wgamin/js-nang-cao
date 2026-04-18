@@ -125,7 +125,7 @@ const handleLogin = async () => {
 /* Banner */
 .login-banner {
   flex: 1;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #06b6d4 100%);
+  background: #312e81;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -133,12 +133,12 @@ const handleLogin = async () => {
   position: relative;
   overflow: hidden;
 }
-.login-banner::before {
+/* .login-banner::before {
   content: '';
   position: absolute;
   inset: 0;
   background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-}
+} */
 .banner-content { position: relative; z-index: 1; color: #fff; max-width: 420px; }
 .banner-icon { font-size: 64px; margin-bottom: 20px; }
 .banner-title {

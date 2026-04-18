@@ -90,7 +90,7 @@ const logout = async () => {
 .layout { display: flex; min-height: 100vh; }
 .sidebar {
   width: 260px;
-  background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
+  background: #312e81;
   display: flex; flex-direction: column;
   position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0;
 }
@@ -101,7 +101,7 @@ const logout = async () => {
 .nav-item:hover, .nav-item--active { background: rgba(255,255,255,0.12); color: #fff; }
 .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
 .user-info { display: flex; align-items: center; gap: 10px; }
-.user-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #06b6d4); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; }
+.user-avatar { width: 38px; height: 38px; border-radius: 50%; background: #4f46e5; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; }
 .user-name { color: #fff; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
 .badge-parent { background: #fef3c7; color: #d97706; }
 .main-content { flex: 1; overflow-y: auto; background: var(--color-bg); }

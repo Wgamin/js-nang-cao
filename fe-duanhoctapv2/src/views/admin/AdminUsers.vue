@@ -158,10 +158,11 @@ const deleteUser = async (user: any) => {
 
 // ----- EXPORT / IMPORT EXCEL -----
 const importing = ref(false)
+const exporting = ref(false)
 
 const exportExcel = async () => {
   const token = localStorage.getItem('token')
-  importing.value = true // mượn tạm spinner
+  exporting.value = true
   try {
     const res = await fetch(`http://localhost:8000/api/admin/export?table=users`, {
       headers: { 
@@ -182,7 +183,7 @@ const exportExcel = async () => {
   } catch (e: any) {
     showToast(e.message, 'error')
   } finally {
-    importing.value = false
+    exporting.value = false
   }
 }
 
@@ -234,10 +235,13 @@ onMounted(loadAll)
           <label class="btn btn-outline" style="cursor:pointer" :class="{'disabled': importing}">
             <span v-if="importing" class="spinner"></span>
             {{ importing ? 'Đang nhập...' : '📥 Nhập Excel' }}
-            <input type="file" style="display:none" accept=".xlsx,.xls,.csv" @change="importExcel" :disabled="importing">
+            <input type="file" style="display:none" accept=".xlsx,.xls,.csv" @change="importExcel" :disabled="importing || exporting">
           </label>
           <!-- EXPORT EXCEL -->
-          <button class="btn btn-outline" @click="exportExcel">📤 Xuất Excel</button>
+          <button class="btn btn-outline" @click="exportExcel" :disabled="exporting || importing">
+             <span v-if="exporting" class="spinner"></span>
+             {{ exporting ? 'Đang xuất...' : '📤 Xuất Excel' }}
+          </button>
 
           <button id="create-user-btn" class="btn btn-primary" @click="openCreate">+ Thêm User</button>
         </div>
