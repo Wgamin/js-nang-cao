@@ -29,8 +29,15 @@ class ScheduleController extends Controller
             'end_time'   => 'required|date|after:start_time',
             'room'       => 'required|string|max:100',
             'note'       => 'nullable|string|max:500',
+            'attendance_count' => 'nullable|integer|min:0',
         ]);
 
+        \Log::info('Schedule store - data received:', $data);
+        
+        // Tự động đánh số buổi học dựa trên số lịch đã có của lớp này
+        $existingCount = Schedule::where('class_id', $data['class_id'])->count();
+        $data['attendance_count'] = $existingCount + 1;
+        
         $schedule = Schedule::create($data);
 
         return response()->json([
@@ -57,8 +64,11 @@ class ScheduleController extends Controller
             'end_time'   => 'sometimes|date',
             'room'       => 'sometimes|string|max:100',
             'note'       => 'nullable|string|max:500',
+            'attendance_count' => 'nullable|integer|min:0',
         ]);
 
+        \Log::info('Schedule update - data received:', $data);
+        
         $schedule->update($data);
 
         return response()->json([

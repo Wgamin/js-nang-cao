@@ -18,6 +18,7 @@ const form = ref({
   end_time: '',
   room: '',
   note: '',
+  attendance_count: 0,
 })
 
 const showToast = (msg: string, type = 'success') => {
@@ -53,7 +54,7 @@ const formatDate = (dt: string) =>
 
 const openCreate = () => {
   isEditing.value = false
-  form.value = { id: null, class_id: '', start_time: '', end_time: '', room: '', note: '' }
+  form.value = { id: null, class_id: '', start_time: '', end_time: '', room: '', note: '', attendance_count: 0 }
   showModal.value = true
 }
 
@@ -66,6 +67,7 @@ const openEdit = (sched: any) => {
     end_time: toLocalInput(sched.end_time),
     room: sched.room,
     note: sched.note || '',
+    attendance_count: sched.attendance_count || 0,
   }
   showModal.value = true
 }
@@ -73,13 +75,22 @@ const openEdit = (sched: any) => {
 const save = async () => {
   saving.value = true
   try {
+    console.log('📋 Form hiện tại:', form.value)
+    
+    // Convert attendance_count to number
+    const attendanceCount = parseInt(form.value.attendance_count) || 0
+    
     const payload = {
       class_id: form.value.class_id,
       start_time: form.value.start_time,
       end_time: form.value.end_time,
       room: form.value.room,
       note: form.value.note,
+      attendance_count: attendanceCount,
     }
+    console.log('📤 Payload gửi lên:', payload)
+    console.log('Attendance count type:', typeof attendanceCount, 'Value:', attendanceCount)
+    
     if (isEditing.value && form.value.id) {
       await fetchApi(`/admin/schedules/${form.value.id}`, { method: 'PUT', body: JSON.stringify(payload) })
       showToast('✅ Cập nhật lịch học thành công!')
@@ -93,10 +104,10 @@ const save = async () => {
     showToast(e.message, 'error')
   } finally {
     saving.value = false
+    }
   }
-}
 
-const deleteSchedule = async (sched: any) => {
+  const deleteSchedule = async (sched: any) => {
   if (!confirm(`Xóa buổi học ngày ${formatDate(sched.start_time)}?`)) return
   try {
     await fetchApi(`/admin/schedules/${sched.id}`, { method: 'DELETE' })
@@ -105,6 +116,10 @@ const deleteSchedule = async (sched: any) => {
   } catch (e: any) {
     showToast(e.message, 'error')
   }
+}
+
+const getAttendanceCount = (sched: any) => {
+  return sched.attendance_count || 0
 }
 
 onMounted(loadAll)
@@ -134,6 +149,7 @@ onMounted(loadAll)
                 <th>Kết Thúc</th>
                 <th>Phòng</th>
                 <th>Ghi Chú</th>
+                <th>Số Buổi</th>
                 <th>Hành Động</th>
               </tr>
             </thead>
@@ -145,6 +161,7 @@ onMounted(loadAll)
                 <td>{{ sched.end_time ? formatDate(sched.end_time) : '—' }}</td>
                 <td><span class="room-tag">{{ sched.room }}</span></td>
                 <td class="text-muted">{{ sched.note || '—' }}</td>
+                <td><span class="session-badge">Buổi {{ getAttendanceCount(sched) }}</span></td>
                 <td>
                   <div class="action-btns">
                     <button class="btn btn-outline btn-sm" @click="openEdit(sched)">✏️ Sửa</button>
@@ -190,6 +207,10 @@ onMounted(loadAll)
                 <label class="form-label">Ghi chú</label>
                 <input class="form-input" v-model="form.note" placeholder="Ghi chú buổi học..." />
               </div>
+              <div class="form-group">
+                <label class="form-label">Số Buổi Học</label>
+                <input class="form-input" v-model="form.attendance_count" placeholder="0" />
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -219,6 +240,7 @@ onMounted(loadAll)
 .empty-state { text-align:center;padding:48px;color:var(--color-text-muted); }
 .action-btns { display:flex;gap:8px; }
 .room-tag { background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:500; }
+.session-badge { background:#e0e7ff;color:#3730a3;border:1px solid #c7d2fe;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700; }
 .form-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px; }
 .modal-backdrop { position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px; }
 .modal { background:#fff;border-radius:20px;width:100%;max-width:580px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.2);animation:modalIn .25s ease; }

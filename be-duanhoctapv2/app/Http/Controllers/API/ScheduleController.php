@@ -71,6 +71,69 @@ class ScheduleController extends Controller
     }
 
     /**
+     * GET /teacher/classes/{class}/attendance
+     * Giáo viên: Lấy chi tiết lớp với tất cả buổi học đã đánh số
+     * Mỗi buổi có attendance_count và trạng thái đã điểm danh chưa
+     */
+    public function classAttendance(Request $request, $classId): JsonResponse
+    {
+        $studyClass = $request->user()->teachingClasses()
+            ->where('classes.id', $classId)
+            ->with(['students:id,name,email', 'schedules' => function ($q) {
+                $q->orderBy('start_time');
+            }])
+            ->first();
+
+        if (!$studyClass) {
+            return response()->json(['message' => 'Không tìm thấy lớp hoặc bạn không có quyền.'], 403);
+        }
+
+        // Lấy danh sách tất cả học sinh đã điểm danh cho mỗi buổi
+        $schedules = $studyClass->schedules->map(function ($schedule) {
+            $attendances = $schedule->attendances()->with('student:id,name,email')->get();
+            $presentCount = $attendances->where('is_present', true)->count();
+            $absentCount = $attendances->where('is_present', false)->count();
+            $totalStudents = $attendances->count();
+
+            return [
+                'id'              => $schedule->id,
+                'attendance_count'=> $schedule->attendance_count,
+                'session_label'   => 'Buổi ' . $schedule->attendance_count,
+                'start_time'      => $schedule->start_time,
+                'end_time'        => $schedule->end_time,
+                'room'            => $schedule->room,
+                'note'            => $schedule->note,
+                'is_attendanced'  => $totalStudents > 0,
+                'stats'           => [
+                    'present' => $presentCount,
+                    'absent'  => $absentCount,
+                    'total'   => $totalStudents,
+                ],
+                'attendances'     => $attendances->map(fn($a) => [
+                    'student_id'  => $a->student_id,
+                    'student_name'=> $a->student->name ?? 'N/A',
+                    'is_present'  => $a->is_present,
+                    'status'      => $a->status,
+                    'note'        => $a->note,
+                ]),
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => [
+                'class'     => [
+                    'id'          => $studyClass->id,
+                    'name'        => $studyClass->name,
+                    'subject'     => $studyClass->subject->name ?? 'N/A',
+                    'total_students' => $studyClass->students->count(),
+                ],
+                'schedules' => $schedules,
+            ],
+        ]);
+    }
+
+    /**
      * GET /admin/stats
      */
     public function stats(): JsonResponse

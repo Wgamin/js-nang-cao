@@ -23,19 +23,28 @@ class AttendanceController extends Controller
         $students = $schedule->studyClass->students->map(function ($student) use ($schedule) {
             $attendance = $schedule->attendances->firstWhere('student_id', $student->id);
             return [
-                'id'         => $student->id,
-                'name'       => $student->name,
-                'email'      => $student->email,
-                'is_present' => $attendance ? (bool) $attendance->is_present : false,
-                'status'     => $attendance->status ?? 'absent',
-                'note'       => $attendance->note ?? null,
+                'id'             => $student->id,
+                'name'           => $student->name,
+                'email'          => $student->email,
+                'is_present'     => $attendance ? (bool) $attendance->is_present : false,
+                'status'        => $attendance->status ?? 'absent',
+                'note'          => $attendance->note ?? null,
             ];
         });
 
         return response()->json([
             'status' => 'success',
             'data'   => [
-                'schedule' => $schedule,
+                'schedule'        => [
+                    'id'              => $schedule->id,
+                    'class_id'        => $schedule->class_id,
+                    'class_name'      => $schedule->studyClass->name ?? 'N/A',
+                    'attendance_count'=> $schedule->attendance_count ?? 1,
+                    'session_label'   => 'Buổi ' . ($schedule->attendance_count ?? 1),
+                    'start_time'      => $schedule->start_time,
+                    'end_time'        => $schedule->end_time,
+                    'room'            => $schedule->room,
+                ],
                 'students' => $students,
             ],
         ]);

@@ -28,10 +28,12 @@ const stats = ref<any>({})
 
 // ---- Teacher state ----
 const teacherClasses = ref<any[]>([])
+const teacherClassDetails = ref<Record<number, any>>({}) // { classId: fullDetailData }
 const showModal = ref(false)
 const selectedSchedule = ref<any>(null)
 const attendanceStudents = ref<any[]>([])
 const savingAttendance = ref(false)
+const loadingClassId = ref<number | null>(null)
 
 const openAttendance = async (sched: any) => {
   selectedSchedule.value = sched
@@ -41,6 +43,30 @@ const openAttendance = async (sched: any) => {
     const res = await fetchApi(`/schedules/${sched.id}/attendance`)
     attendanceStudents.value = res.data.students.map((s: any) => ({ ...s, status: s.status || 'present' }))
   } catch (e: any) { showToast(e.message, 'error') }
+}
+
+const openAttendanceFromDetail = async (sched: any) => {
+  selectedSchedule.value = sched
+  showModal.value = true
+  attendanceStudents.value = []
+  try {
+    const res = await fetchApi(`/schedules/${sched.id}/attendance`)
+    attendanceStudents.value = res.data.students.map((s: any) => ({ ...s, status: s.status || 'present' }))
+  } catch (e: any) { showToast(e.message, 'error') }
+}
+
+const loadClassDetails = async (classId: number, forceRefresh = false) => {
+  if (teacherClassDetails.value[classId] && !forceRefresh) return // Đã load rồi (trừ khi force refresh)
+  if (forceRefresh) delete teacherClassDetails.value[classId] // Xóa cache cũ
+  loadingClassId.value = classId
+  try {
+    const res = await fetchApi(`/teacher/classes/${classId}/attendance`)
+    teacherClassDetails.value[classId] = res.data
+  } catch (e: any) {
+    showToast(e.message, 'error')
+  } finally {
+    loadingClassId.value = null
+  }
 }
 
 const saveAttendance = async () => {
@@ -181,25 +207,88 @@ onMounted(loadData)
               </div>
               <div class="student-count">{{ cls.students?.length ?? 0 }} học sinh</div>
             </div>
-            <h4 class="section-title mt-4">Lịch Học</h4>
-            <div v-if="!cls.schedules?.length" class="empty-state">Chưa có lịch học.</div>
-            <div v-else class="table-wrapper mt-4">
-              <table class="table">
-                <thead><tr><th>Bắt Đầu</th><th>Kết Thúc</th><th>Phòng</th><th>Ghi Chú</th><th>Hành Động</th></tr></thead>
-                <tbody>
-                  <tr v-for="sched in cls.schedules" :key="sched.id">
-                    <td>{{ fmt(sched.start_time) }}</td>
-                    <td>{{ sched.end_time ? fmt(sched.end_time) : '—' }}</td>
-                    <td><span class="room-tag">{{ sched.room }}</span></td>
-                    <td class="text-muted">{{ sched.note || '—' }}</td>
-                    <td>
-                      <button class="btn btn-primary btn-sm" :id="`att-btn-${sched.id}`" @click="openAttendance(sched)">
-                        ✏️ Điểm Danh
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+
+            <!-- Nút tải chi tiết lớp -->
+            <button
+              v-if="!teacherClassDetails[cls.id]"
+              class="btn btn-outline btn-sm mt-3"
+              :disabled="loadingClassId === cls.id"
+              @click="loadClassDetails(cls.id)"
+            >
+              {{ loadingClassId === cls.id ? '⏳ Đang tải...' : '📋 Xem Tất Cả Buổi Học (' + (cls.schedules?.length || 0) + ' buổi)' }}
+            </button>
+
+            <!-- Chi tiết lớp với tất cả buổi học -->
+            <div v-if="teacherClassDetails[cls.id]" class="mt-4">
+              <div class="section-header">
+                <h4 class="section-title">📅 Tất Cả Buổi Học ({{ teacherClassDetails[cls.id].schedules?.length || 0 }} buổi)</h4>
+                <button class="btn btn-outline btn-sm" @click="loadClassDetails(cls.id, true)">🔄 Làm mới</button>
+              </div>
+
+              <div v-if="!teacherClassDetails[cls.id].schedules?.length" class="empty-state">Chưa có buổi học nào.</div>
+              <div v-else class="table-wrapper mt-3">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>STT</th>
+                      <th>Buổi</th>
+                      <th>Ngày Học</th>
+                      <th>Phòng</th>
+                      <th>Trạng Thái</th>
+                      <th>Thống Kê</th>
+                      <th>Hành Động</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(sched, index) in teacherClassDetails[cls.id].schedules" :key="sched.id">
+                      <td class="text-muted">{{ index + 1 }}</td>
+                      <td><span class="session-badge">Buổi {{ sched.attendance_count }}</span></td>
+                      <td>{{ fmt(sched.start_time) }}</td>
+                      <td><span class="room-tag">{{ sched.room }}</span></td>
+                      <td>
+                        <span v-if="sched.is_attendanced" class="att-badge att-done">✅ Đã điểm danh</span>
+                        <span v-else class="att-badge att-pending">⏳ Chưa điểm danh</span>
+                      </td>
+                      <td>
+                        <div class="stats-mini">
+                          <span class="stat-present">✅ {{ sched.stats?.present || 0 }}</span>
+                          <span class="stat-absent">❌ {{ sched.stats?.absent || 0 }}</span>
+                          <span class="text-muted">/ {{ teacherClassDetails[cls.id].class?.total_students || 0 }}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <button class="btn btn-primary btn-sm" @click="openAttendanceFromDetail(sched)">
+                          {{ sched.is_attendanced ? '✏️ Sửa' : '✏️ Điểm Danh' }}
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Lịch học cũ (nếu chưa load chi tiết) -->
+            <div v-else-if="cls.schedules?.length" class="mt-4">
+              <h4 class="section-title mt-4">Lịch Học Gần Đây</h4>
+              <div class="table-wrapper mt-3">
+                <table class="table">
+                  <thead><tr><th>Buổi</th><th>Bắt Đầu</th><th>Kết Thúc</th><th>Phòng</th><th>Ghi Chú</th><th>Hành Động</th></tr></thead>
+                  <tbody>
+                    <tr v-for="sched in cls.schedules.slice(0, 5)" :key="sched.id">
+                      <td><span class="session-badge">Buổi {{ sched.attendance_count || 1 }}</span></td>
+                      <td>{{ fmt(sched.start_time) }}</td>
+                      <td>{{ sched.end_time ? fmt(sched.end_time) : '—' }}</td>
+                      <td><span class="room-tag">{{ sched.room }}</span></td>
+                      <td class="text-muted">{{ sched.note || '—' }}</td>
+                      <td>
+                        <button class="btn btn-primary btn-sm" @click="openAttendance(sched)">
+                          ✏️ Điểm Danh
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -234,11 +323,12 @@ onMounted(loadData)
             <div v-if="!attendanceHistory.length" class="empty-state">Chưa có dữ liệu điểm danh.</div>
             <div v-else class="table-wrapper">
               <table class="table">
-                <thead><tr><th>#</th><th>Lớp</th><th>Buổi Học</th><th>Trạng Thái</th><th>Ghi Chú</th></tr></thead>
+                <thead><tr><th>#</th><th>Lớp</th><th>Buổi</th><th>Ngày Học</th><th>Trạng Thái</th><th>Ghi Chú</th></tr></thead>
                 <tbody>
                   <tr v-for="(a, i) in attendanceHistory" :key="a.id">
                     <td class="text-muted">{{ i+1 }}</td>
                     <td class="fw-bold">{{ a.schedule.class_name }}</td>
+                    <td><span class="session-badge">Buổi {{ a.schedule.attendance_count || 1 }}</span></td>
                     <td>{{ fmt(a.schedule.start_time) }}</td>
                     <td><span class="att-badge" :style="{ background: statusColor[a.status] + '20', color: statusColor[a.status] }">{{ statusLabel[a.status] }}</span></td>
                     <td class="text-muted">{{ a.note || '—' }}</td>
@@ -310,10 +400,11 @@ onMounted(loadData)
                     <div v-if="!childrenData[parentTab].attendances.length" class="empty-state">Chưa có dữ liệu điểm danh.</div>
                     <div v-else class="table-wrapper mt-4">
                       <table class="table">
-                        <thead><tr><th>Lớp</th><th>Buổi Học</th><th>Trạng Thái</th><th>Ghi Chú</th></tr></thead>
+                        <thead><tr><th>Lớp</th><th>Buổi</th><th>Ngày Học</th><th>Trạng Thái</th><th>Ghi Chú</th></tr></thead>
                         <tbody>
                           <tr v-for="a in childrenData[parentTab].attendances" :key="a.id">
                             <td class="fw-bold">{{ a.schedule.class_name }}</td>
+                            <td><span class="session-badge">Buổi {{ a.schedule.attendance_count || 1 }}</span></td>
                             <td>{{ fmt(a.schedule.start_time) }}</td>
                             <td><span class="att-badge" :style="{ background: statusColor[a.status]+'20', color: statusColor[a.status] }">{{ statusLabel[a.status] }}</span></td>
                             <td class="text-muted">{{ a.note || '—' }}</td>
@@ -359,7 +450,7 @@ onMounted(loadData)
         <div class="modal" id="attendance-modal">
           <div class="modal-header">
             <div>
-              <h3>✏️ Điểm Danh Buổi Học</h3>
+              <h3>✏️ Điểm Danh {{ selectedSchedule ? `Buổi ${selectedSchedule.attendance_count || 1}` : '' }}</h3>
               <p class="text-muted" style="font-size:13px">{{ selectedSchedule ? fmt(selectedSchedule.start_time) : '' }} | {{ selectedSchedule?.room }}</p>
             </div>
             <button class="modal-close" @click="showModal = false">✕</button>
@@ -438,10 +529,18 @@ onMounted(loadData)
 .status-active { background:#dcfce7;color:#15803d; }
 .status-inactive { background:#fee2e2;color:#b91c1c; }
 .section-title { font-size:15px;font-weight:700; }
+.section-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:8px; }
 .empty-state { text-align:center;padding:32px;color:var(--color-text-muted);font-size:14px; }
 .empty-card { text-align:center;padding:48px;color:var(--color-text-muted); }
 .room-tag { background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:500; }
+.session-badge { background:#e0e7ff;color:#3730a3;border:1px solid #c7d2fe;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700; }
 .att-badge { display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600; }
+.att-done { background:#dcfce7;color:#15803d; }
+.att-pending { background:#fef3c7;color:#d97706; }
+.stats-mini { display:flex;gap:8px;font-size:12px;align-items:center; }
+.stat-present { color:#16a34a;font-weight:600; }
+.stat-absent { color:#dc2626;font-weight:600; }
+.mt-3 { margin-top: 12px; }
 
 .child-dashboard { margin-top: 0; }
 .child-tab-content { display:flex;flex-direction:column;gap:0; }

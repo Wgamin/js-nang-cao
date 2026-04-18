@@ -34,6 +34,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Teacher
     Route::get('/teacher/classes', [ScheduleController::class, 'teacherClasses'])
         ->middleware('role:Teacher');
+    Route::get('/teacher/classes/{class}/attendance', [ScheduleController::class, 'classAttendance'])
+        ->middleware('role:Teacher');
 
     // ==== Admin-only ====
     Route::middleware('role:Admin')->prefix('admin')->group(function () {
