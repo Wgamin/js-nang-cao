@@ -11,10 +11,11 @@ use Illuminate\Http\Request;
 class ScheduleController extends Controller
 {
     /**
-     * Lấy danh sách lịch học.
+     * GET /schedules
      * - Admin: Xem tất cả
      * - Teacher: Xem lịch lớp mình dạy
      * - Student: Xem lịch lớp mình học
+     * - Parent: Xem lịch của tất cả con mình
      */
     public function index(Request $request): JsonResponse
     {
@@ -25,54 +26,64 @@ class ScheduleController extends Controller
                 ->with(['schedules.studyClass'])
                 ->get()
                 ->pluck('schedules')
-                ->flatten();
+                ->flatten()
+                ->map(fn($s) => $s->load('studyClass'));
+
         } elseif ($user->hasRole('Teacher')) {
             $schedules = $user->teachingClasses()
                 ->with(['schedules.studyClass'])
                 ->get()
                 ->pluck('schedules')
-                ->flatten();
+                ->flatten()
+                ->map(fn($s) => $s->load('studyClass'));
+
+        } elseif ($user->hasRole('Parent')) {
+            // Phụ huynh: gom lịch học của tất cả con
+            $schedules = $user->children()
+                ->with(['enrolledClasses.schedules.studyClass'])
+                ->get()
+                ->flatMap(fn($child) => $child->enrolledClasses
+                    ->flatMap(fn($cls) => $cls->schedules->map(fn($s) => array_merge(
+                        $s->toArray(),
+                        ['child_name' => $child->name, 'class_name' => $cls->name]
+                    )))
+                );
+
+            return response()->json(['status' => 'success', 'data' => $schedules->values()]);
+
         } else {
-            // Admin thấy tất cả
-            $schedules = Schedule::with('studyClass')->get();
+            $schedules = Schedule::with('studyClass')->latest('start_time')->get();
         }
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $schedules
-        ]);
+        return response()->json(['status' => 'success', 'data' => $schedules->values()]);
     }
 
     /**
-     * Thống kê tổng quan (chỉ Admin).
+     * GET /teacher/classes - Giáo viên: Lấy lớp + học sinh + lịch
+     */
+    public function teacherClasses(Request $request): JsonResponse
+    {
+        $classes = $request->user()->teachingClasses()
+            ->with(['students:id,name,email', 'schedules'])
+            ->get();
+
+        return response()->json(['status' => 'success', 'data' => $classes]);
+    }
+
+    /**
+     * GET /admin/stats
      */
     public function stats(): JsonResponse
     {
         return response()->json([
             'status' => 'success',
-            'data' => [
+            'data'   => [
                 'total_students' => User::role('Student')->count(),
                 'total_teachers' => User::role('Teacher')->count(),
-                'total_classes' => \App\Models\StudyClass::count(),
+                'total_parents'  => User::role('Parent')->count(),
+                'total_classes'  => \App\Models\StudyClass::count(),
                 'total_schedules' => Schedule::count(),
-            ]
-        ]);
-    }
-
-    /**
-     * Lấy danh sách lớp mà giáo viên đang dạy (kèm danh sách học sinh).
-     */
-    public function teacherClasses(Request $request): JsonResponse
-    {
-        $user = $request->user();
-
-        $classes = $user->teachingClasses()
-            ->with(['students', 'schedules'])
-            ->get();
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $classes
+            ],
         ]);
     }
 }

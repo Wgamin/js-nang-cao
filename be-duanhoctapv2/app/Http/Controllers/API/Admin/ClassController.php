@@ -13,7 +13,7 @@ class ClassController extends Controller
     /** GET /admin/classes - Danh sách lớp học */
     public function index(): JsonResponse
     {
-        $classes = StudyClass::with(['teacher:id,name,email', 'students:id,name', 'schedules'])
+        $classes = StudyClass::with(['teacher:id,name,email', 'students:id,name', 'schedules', 'subject'])
             ->withCount('students')
             ->latest()
             ->get();
@@ -27,6 +27,7 @@ class ClassController extends Controller
         $data = $request->validate([
             'name'        => 'required|string|max:255',
             'teacher_id'  => 'required|exists:users,id',
+            'subject_id'  => 'required|exists:subjects,id',
             'description' => 'nullable|string',
             'status'      => 'nullable|in:active,inactive',
             'student_ids' => 'nullable|array',
@@ -36,6 +37,7 @@ class ClassController extends Controller
         $class = StudyClass::create([
             'name'        => $data['name'],
             'teacher_id'  => $data['teacher_id'],
+            'subject_id'  => $data['subject_id'],
             'description' => $data['description'] ?? null,
             'status'      => $data['status'] ?? 'active',
         ]);
@@ -46,7 +48,7 @@ class ClassController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $class->load(['teacher:id,name', 'students:id,name']),
+            'data' => $class->load(['teacher:id,name', 'students:id,name', 'subject']),
         ], 201);
     }
 
@@ -55,7 +57,7 @@ class ClassController extends Controller
     {
         return response()->json([
             'status' => 'success',
-            'data' => $class->load(['teacher:id,name,email', 'students:id,name,email', 'schedules']),
+            'data' => $class->load(['teacher:id,name,email', 'students:id,name,email', 'schedules', 'subject']),
         ]);
     }
 
@@ -65,6 +67,7 @@ class ClassController extends Controller
         $data = $request->validate([
             'name'        => 'sometimes|string|max:255',
             'teacher_id'  => 'sometimes|exists:users,id',
+            'subject_id'  => 'sometimes|exists:subjects,id',
             'description' => 'nullable|string',
             'status'      => 'nullable|in:active,inactive',
             'student_ids' => 'nullable|array',
@@ -82,7 +85,7 @@ class ClassController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $class->fresh()->load(['teacher:id,name', 'students:id,name']),
+            'data' => $class->fresh()->load(['teacher:id,name', 'students:id,name', 'subject']),
         ]);
     }
 

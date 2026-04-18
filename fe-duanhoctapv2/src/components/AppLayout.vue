@@ -1,33 +1,23 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useRouter, useLink } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 const role = ref(localStorage.getItem('role') || '')
 const userName = ref(localStorage.getItem('userName') || '')
-const { fetchApi } = useApiFn()
 
 const isAdmin = computed(() => role.value === 'Admin')
 const isTeacher = computed(() => role.value === 'Teacher')
-
-function useApiFn() {
-  const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
-    const token = localStorage.getItem('token')
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    }
-    if (token) headers['Authorization'] = `Bearer ${token}`
-    const response = await fetch(`http://localhost:8000/api${endpoint}`, { ...options, headers: { ...headers, ...(options.headers as any) } })
-    const data = await response.json()
-    if (!response.ok) throw new Error(data.message || 'Lỗi')
-    return data
-  }
-  return { fetchApi }
-}
+const isParent = computed(() => role.value === 'Parent')
 
 const router = useRouter()
 const logout = async () => {
-  try { await fetchApi('/logout', { method: 'POST' }) } catch {}
+  const token = localStorage.getItem('token')
+  try {
+    await fetch('http://localhost:8000/api/logout', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+    })
+  } catch {}
   localStorage.clear()
   router.push('/login')
 }
@@ -47,11 +37,17 @@ const logout = async () => {
           <router-link class="nav-item" to="/admin/users" active-class="nav-item--active">
             <span>👥</span> Quản Lý Users
           </router-link>
+          <router-link class="nav-item" to="/admin/subjects" active-class="nav-item--active">
+            <span>📚</span> Quản Lý Môn Học
+          </router-link>
           <router-link class="nav-item" to="/admin/classes" active-class="nav-item--active">
-            <span>🏫</span> Quản Lý Lớp Học
+            <span>🎓</span> Quản Lý Lớp Học
           </router-link>
           <router-link class="nav-item" to="/admin/schedules" active-class="nav-item--active">
             <span>📅</span> Quản Lý Lịch Học
+          </router-link>
+          <router-link class="nav-item" to="/admin/tuitions" active-class="nav-item--active">
+            <span>💰</span> Quản Lý Học Phí
           </router-link>
         </template>
 
@@ -61,14 +57,21 @@ const logout = async () => {
             <span>📋</span> Lớp & Điểm Danh
           </router-link>
         </template>
+
+        <template v-if="isParent">
+          <div class="nav-section">PHỤ HUYNH</div>
+          <router-link class="nav-item" to="/" active-class="nav-item--active">
+            <span>👨‍👩‍👧</span> Thông Tin Con Em
+          </router-link>
+        </template>
       </nav>
       <div class="sidebar-footer">
         <div class="user-info">
           <div class="user-avatar">{{ userName.charAt(0).toUpperCase() }}</div>
           <div>
             <div class="user-name">{{ userName }}</div>
-            <span class="badge" :class="role === 'Admin' ? 'badge-admin' : role === 'Teacher' ? 'badge-teacher' : 'badge-student'">
-              {{ role }}
+            <span class="badge" :class="role === 'Admin' ? 'badge-admin' : role === 'Teacher' ? 'badge-teacher' : role === 'Parent' ? 'badge-parent' : 'badge-student'">
+              {{ role === 'Parent' ? 'Phụ Huynh' : role }}
             </span>
           </div>
         </div>
@@ -85,63 +88,22 @@ const logout = async () => {
 
 <style scoped>
 .layout { display: flex; min-height: 100vh; }
-
 .sidebar {
   width: 260px;
   background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
-  display: flex;
-  flex-direction: column;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-  flex-shrink: 0;
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0;
 }
-.sidebar-logo {
-  color: #fff;
-  font-size: 18px;
-  font-weight: 800;
-  padding: 24px 20px 18px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
+.sidebar-logo { color: #fff; font-size: 18px; font-weight: 800; padding: 24px 20px 18px; border-bottom: 1px solid rgba(255,255,255,0.1); }
 .sidebar-nav { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 2px; }
-.nav-section {
-  font-size: 10px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.4);
-  letter-spacing: 0.1em;
-  padding: 12px 14px 4px;
-  text-transform: uppercase;
-}
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 14px;
-  border-radius: 8px;
-  color: rgba(255,255,255,0.65);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.15s;
-}
-.nav-item:hover, .nav-item--active {
-  background: rgba(255,255,255,0.12);
-  color: #fff;
-}
+.nav-section { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.4); letter-spacing: 0.1em; padding: 12px 14px 4px; text-transform: uppercase; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 8px; color: rgba(255,255,255,0.65); text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.15s; }
+.nav-item:hover, .nav-item--active { background: rgba(255,255,255,0.12); color: #fff; }
 .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
 .user-info { display: flex; align-items: center; gap: 10px; }
-.user-avatar {
-  width: 38px; height: 38px; border-radius: 50%;
-  background: linear-gradient(135deg, #4f46e5, #06b6d4);
-  color: #fff; display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 15px; flex-shrink: 0;
-}
+.user-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #06b6d4); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; }
 .user-name { color: #fff; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
-
+.badge-parent { background: #fef3c7; color: #d97706; }
 .main-content { flex: 1; overflow-y: auto; background: var(--color-bg); }
-
-@media (max-width: 768px) {
-  .sidebar { display: none; }
-}
+@media (max-width: 768px) { .sidebar { display: none; } }
 </style>

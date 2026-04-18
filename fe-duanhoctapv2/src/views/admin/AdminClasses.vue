@@ -7,12 +7,13 @@ const { fetchApi } = useApi()
 const classes = ref<any[]>([])
 const teachers = ref<any[]>([])
 const studentsList = ref<any[]>([])
+const subjects = ref<any[]>([])
 const loading = ref(true)
 const toast = ref<{ msg: string; type: string } | null>(null)
 const showModal = ref(false)
 const isEditing = ref(false)
 const saving = ref(false)
-const form = ref({ id: null as number | null, name: '', teacher_id: '' as any, description: '', status: 'active', student_ids: [] as number[] })
+const form = ref({ id: null as number | null, name: '', teacher_id: '' as any, subject_id: '' as any, description: '', status: 'active', student_ids: [] as number[] })
 
 const showToast = (msg: string, type = 'success') => {
   toast.value = { msg, type }
@@ -22,14 +23,16 @@ const showToast = (msg: string, type = 'success') => {
 const loadAll = async () => {
   loading.value = true
   try {
-    const [c, t, s] = await Promise.all([
+    const [c, t, s, sub] = await Promise.all([
       fetchApi('/admin/classes'),
       fetchApi('/admin/teachers'),
       fetchApi('/admin/students-list'),
+      fetchApi('/admin/subjects'),
     ])
     classes.value = c.data
     teachers.value = t.data
     studentsList.value = s.data
+    subjects.value = sub.data
   } catch (e: any) {
     showToast(e.message, 'error')
   } finally {
@@ -39,7 +42,7 @@ const loadAll = async () => {
 
 const openCreate = () => {
   isEditing.value = false
-  form.value = { id: null, name: '', teacher_id: '', description: '', status: 'active', student_ids: [] }
+  form.value = { id: null, name: '', teacher_id: '', subject_id: '', description: '', status: 'active', student_ids: [] }
   showModal.value = true
 }
 
@@ -49,6 +52,7 @@ const openEdit = (cls: any) => {
     id: cls.id,
     name: cls.name,
     teacher_id: cls.teacher_id,
+    subject_id: cls.subject_id,
     description: cls.description || '',
     status: cls.status,
     student_ids: cls.students?.map((s: any) => s.id) || [],
@@ -68,6 +72,7 @@ const save = async () => {
     const payload = {
       name: form.value.name,
       teacher_id: form.value.teacher_id,
+      subject_id: form.value.subject_id,
       description: form.value.description,
       status: form.value.status,
       student_ids: form.value.student_ids,
@@ -122,6 +127,7 @@ onMounted(loadAll)
               <tr>
                 <th>Tên Lớp</th>
                 <th>Giáo Viên</th>
+                <th>Môn Học</th>
                 <th>Mô Tả</th>
                 <th>Trạng Thái</th>
                 <th>Số HS</th>
@@ -132,6 +138,7 @@ onMounted(loadAll)
               <tr v-for="cls in classes" :key="cls.id">
                 <td class="fw-bold">{{ cls.name }}</td>
                 <td>{{ cls.teacher?.name || '—' }}</td>
+                <td><span class="status-badge" style="background:#e0f2fe;color:#0369a1">{{ cls.subject?.name || '—' }}</span></td>
                 <td class="text-muted cell-truncate">{{ cls.description || '—' }}</td>
                 <td>
                   <span class="status-badge" :class="cls.status === 'active' ? 'status-active' : 'status-inactive'">
@@ -164,6 +171,13 @@ onMounted(loadAll)
               <div class="form-group" style="grid-column:span 2">
                 <label class="form-label">Tên lớp *</label>
                 <input class="form-input" v-model="form.name" placeholder="Toán 12A1" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Môn học *</label>
+                <select class="form-input" v-model="form.subject_id">
+                  <option disabled value="">-- Chọn môn học --</option>
+                  <option v-for="s in subjects" :key="s.id" :value="s.id">{{ s.name }}</option>
+                </select>
               </div>
               <div class="form-group">
                 <label class="form-label">Giáo viên phụ trách *</label>

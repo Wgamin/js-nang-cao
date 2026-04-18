@@ -11,13 +11,19 @@ class StudyClass extends Model
 {
     protected $table = 'classes';
 
-    protected $fillable = ['name', 'teacher_id', 'description', 'status'];
+    protected $fillable = ['name', 'teacher_id', 'subject_id', 'description', 'status'];
 
     protected function casts(): array
     {
         return [
             'status' => 'string',
         ];
+    }
+
+    /** Môn học của lớp */
+    public function subject(): BelongsTo
+    {
+        return $this->belongsTo(Subject::class, 'subject_id');
     }
 
     /** Giáo viên phụ trách lớp */

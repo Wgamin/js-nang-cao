@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Attendance extends Model
 {
-    protected $fillable = ['schedule_id', 'student_id', 'is_present', 'note'];
+    protected $fillable = ['schedule_id', 'student_id', 'is_present', 'status', 'note'];
 
     protected function casts(): array
     {

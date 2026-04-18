@@ -13,7 +13,7 @@ class ScheduleController extends Controller
     /** GET /admin/schedules - Tất cả lịch học */
     public function index(): JsonResponse
     {
-        $schedules = Schedule::with(['studyClass:id,name', 'studyClass.teacher:id,name'])
+        $schedules = Schedule::with(['studyClass:id,name,teacher_id', 'studyClass.teacher:id,name'])
             ->latest('start_time')
             ->get();
 

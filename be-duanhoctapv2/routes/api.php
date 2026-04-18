@@ -6,6 +6,7 @@ use App\Http\Controllers\API\ScheduleController;
 use App\Http\Controllers\API\Admin\UserController as AdminUserController;
 use App\Http\Controllers\API\Admin\ClassController as AdminClassController;
 use App\Http\Controllers\API\Admin\ScheduleController as AdminScheduleController;
+use App\Http\Controllers\API\Admin\TuitionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,21 +24,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
 
-    // ---- Schedule & Attendance (Teacher & Student) ----
+    // Schedules (Teacher, Student, Parent)
     Route::get('/schedules', [ScheduleController::class, 'index']);
+    Route::get('/attendance/history', [AttendanceController::class, 'history']);
+    Route::get('/tuitions/history', [\App\Http\Controllers\API\UserTuitionController::class, 'myHistory']);
     Route::get('/schedules/{schedule}/attendance', [AttendanceController::class, 'show']);
     Route::post('/schedules/{schedule}/attendance', [AttendanceController::class, 'store']);
 
-    // Teacher: danh sách lớp mình dạy
+    // Teacher
     Route::get('/teacher/classes', [ScheduleController::class, 'teacherClasses'])
         ->middleware('role:Teacher');
 
-    // ---- Admin-only routes ----
+    // ==== Admin-only ====
     Route::middleware('role:Admin')->prefix('admin')->group(function () {
-        // Thống kê
         Route::get('/stats', [ScheduleController::class, 'stats']);
 
         // Users CRUD
+        Route::get('/parents-list', [AdminUserController::class, 'parentsList']);
         Route::apiResource('/users', AdminUserController::class);
 
         // Classes CRUD + helpers
@@ -48,5 +51,18 @@ Route::middleware('auth:sanctum')->group(function () {
         // Schedules CRUD + helpers
         Route::get('/classes-list', [AdminScheduleController::class, 'classesList']);
         Route::apiResource('/schedules', AdminScheduleController::class);
+
+        // Tuitions
+        Route::get('/tuitions/stats', [TuitionController::class, 'stats']);
+        Route::post('/tuitions/generate-for-class', [TuitionController::class, 'generateForClass']);
+        Route::apiResource('/tuitions', TuitionController::class);
+
+        // Excel Export/Import
+        Route::get('/export', [\App\Http\Controllers\API\Admin\ExportImportController::class, 'export']);
+        Route::post('/import', [\App\Http\Controllers\API\Admin\ExportImportController::class, 'import']);
+
+        // Subjects & Rooms
+        Route::apiResource('/subjects', \App\Http\Controllers\API\Admin\SubjectController::class);
+        Route::apiResource('/rooms', \App\Http\Controllers\API\Admin\RoomController::class);
     });
 });

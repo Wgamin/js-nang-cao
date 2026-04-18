@@ -46,9 +46,10 @@ const handleLogin = async () => {
         <h1 class="banner-title">Hệ Thống<br />Quản Lý Học Thêm</h1>
         <p class="banner-subtitle">Nền tảng quản lý lớp học, điểm danh và lịch học hiệu quả cho giáo viên và học sinh.</p>
         <div class="banner-features">
-          <div class="feature-item">✅ Phân quyền 3 tầng: Admin · Giáo viên · Học sinh</div>
-          <div class="feature-item">✅ Điểm danh trực tuyến theo buổi học</div>
-          <div class="feature-item">✅ Quản lý lịch học theo lớp</div>
+          <div class="feature-item">✅ Phân quyền 4 tầng: Admin · GV · HS · Phụ huynh</div>
+          <div class="feature-item">✅ Điểm danh 3 trạng thái: Có mặt · Vắng · Muộn</div>
+          <div class="feature-item">✅ Quản lý học phí & thu tiền trực tuyến</div>
+          <div class="feature-item">✅ Phụ huynh theo dõi con em từ xa</div>
         </div>
       </div>
     </div>
@@ -104,6 +105,9 @@ const handleLogin = async () => {
             </button>
             <button class="demo-item" @click="email = 'student@test.com'; password = 'password'">
               <span class="badge badge-student">Học sinh</span> student@test.com
+            </button>
+            <button class="demo-item" @click="email = 'parent@test.com'; password = 'password'">
+              <span class="badge badge-parent">Phụ Huynh</span> parent@test.com
             </button>
           </div>
         </div>
@@ -201,6 +205,7 @@ const handleLogin = async () => {
   text-align: left;
 }
 .demo-item:hover { border-color: #4f46e5; background: #eef2ff; color: #4f46e5; }
+.badge-parent { background: #fef3c7; color: #d97706; }
 
 @media (max-width: 900px) {
   .login-banner { display: none; }
