@@ -14,6 +14,8 @@ const allStudents = ref<any[]>([])   // Tất cả học sinh (cho Parent chọn
 const parentsList = ref<any[]>([])   // Tất cả phụ huynh (cho Student chọn cha mẹ)
 const loading = ref(true)
 const filterRole = ref('')
+const searchQuery = ref('')
+const searchTimeout = ref<any>(null)
 const toast = ref<{ msg: string; type: string } | null>(null)
 
 // Modal state
@@ -53,8 +55,12 @@ const toggleChild = (id: number) => {
 const loadAll = async () => {
   loading.value = true
   try {
+    let url = `/admin/users?role=${filterRole.value}`
+    if (searchQuery.value) {
+      url += `&search=${encodeURIComponent(searchQuery.value)}`
+    }
     const [u, s, p] = await Promise.all([
-      fetchApi(`/admin/users${filterRole.value ? '?role=' + filterRole.value : ''}`),
+      fetchApi(url),
       fetchApi('/admin/students-list'),
       fetchApi('/admin/parents-list'),
     ])
@@ -218,6 +224,15 @@ const importExcel = async (event: any) => {
   }
 }
 
+// Xử lý tìm kiếm với debounce
+import { watch } from 'vue'
+watch(searchQuery, () => {
+  if (searchTimeout.value) clearTimeout(searchTimeout.value)
+  searchTimeout.value = setTimeout(() => {
+    loadAll()
+  }, 500)
+})
+
 onMounted(loadAll)
 </script>
 
@@ -247,16 +262,29 @@ onMounted(loadAll)
         </div>
       </div>
 
-      <!-- Filter -->
+      <!-- Filter & Search -->
       <div class="filter-bar card">
-        <label class="form-label" style="margin:0">Lọc vai trò:</label>
-        <select class="form-input" style="width:190px" v-model="filterRole" @change="loadAll">
-          <option value="">Tất cả</option>
-          <option value="Admin">Admin</option>
-          <option value="Teacher">Giáo viên</option>
-          <option value="Student">Học sinh</option>
-          <option value="Parent">Phụ huynh</option>
-        </select>
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input 
+            type="text" 
+            class="form-input search-input" 
+            placeholder="Tìm theo tên, email, SĐT..." 
+            v-model="searchQuery"
+          >
+        </div>
+
+        <div class="filter-group">
+          <label class="form-label" style="margin:0">Vai trò:</label>
+          <select class="form-input" style="width:160px" v-model="filterRole" @change="loadAll">
+            <option value="">Tất cả</option>
+            <option value="Admin">Admin</option>
+            <option value="Teacher">Giáo viên</option>
+            <option value="Student">Học sinh</option>
+            <option value="Parent">Phụ huynh</option>
+          </select>
+        </div>
+
         <span class="result-count">{{ users.length }} kết quả</span>
       </div>
 
@@ -453,8 +481,12 @@ onMounted(loadAll)
 .page-header { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px; }
 .page-title { font-size:24px;font-weight:800;margin-bottom:4px; }
 
-.filter-bar { display:flex;align-items:center;gap:16px;padding:14px 20px; }
-.result-count { margin-left:auto;color:var(--color-text-muted);font-size:13px; }
+.filter-bar { display:flex;align-items:center;gap:20px;padding:16px 24px; flex-wrap: wrap; }
+.search-box { position: relative; flex: 1; min-width: 250px; }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); pointer-events: none; }
+.search-input { padding-left: 38px !important; width: 100%; }
+.filter-group { display: flex; align-items: center; gap: 10px; }
+.result-count { margin-left:auto;color:var(--color-text-muted);font-size:13px; font-weight: 500; }
 
 .loading-center { display:flex;justify-content:center;padding:40px; }
 .spinner-blue { width:32px;height:32px;border:3px solid rgba(79,70,229,.2);border-top-color:#4f46e5;border-radius:50%;animation:spin .8s linear infinite; }

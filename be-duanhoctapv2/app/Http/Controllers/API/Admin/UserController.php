@@ -17,6 +17,15 @@ class UserController extends Controller
         $role = $request->query('role');
         $query = User::with(['roles', 'children:id,name,email'])->latest();
 
+        if ($request->has('search')) {
+            $search = $request->query('search');
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
         if ($role) {
             $query->role($role);
         }
