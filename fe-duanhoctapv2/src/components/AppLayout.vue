@@ -40,6 +40,9 @@ const logout = async () => {
           <router-link class="nav-item" to="/admin/subjects" active-class="nav-item--active">
             <span>📚</span> Quản Lý Môn Học
           </router-link>
+          <router-link class="nav-item" to="/admin/study-slots" active-class="nav-item--active">
+            <span>🕒</span> Quản Lý Ca Học
+          </router-link>
           <router-link class="nav-item" to="/admin/classes" active-class="nav-item--active">
             <span>🎓</span> Quản Lý Lớp Học
           </router-link>
