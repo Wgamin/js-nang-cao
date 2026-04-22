@@ -52,6 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Schedules CRUD + helpers
         Route::get('/classes-list', [AdminScheduleController::class, 'classesList']);
+        Route::post('/schedules/bulk', [AdminScheduleController::class, 'bulkStore']);
         Route::apiResource('/schedules', AdminScheduleController::class);
 
         // Tuitions
@@ -66,5 +67,6 @@ Route::middleware('auth:sanctum')->group(function () {
         // Subjects & Rooms
         Route::apiResource('/subjects', \App\Http\Controllers\API\Admin\SubjectController::class);
         Route::apiResource('/rooms', \App\Http\Controllers\API\Admin\RoomController::class);
+        Route::apiResource('/study-slots', \App\Http\Controllers\API\Admin\StudySlotController::class);
     });
 });

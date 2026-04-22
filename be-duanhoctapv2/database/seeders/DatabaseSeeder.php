@@ -137,5 +137,8 @@ class DatabaseSeeder extends Seeder
                 ]
             );
         }
+
+        // ===== 8. Tạo Ca học mẫu =====
+        $this->call(StudySlotSeeder::class);
     }
 }

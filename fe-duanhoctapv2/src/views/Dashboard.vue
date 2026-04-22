@@ -6,7 +6,6 @@ import AppLayout from '../components/AppLayout.vue'
 
 const role = ref(localStorage.getItem('role') || '')
 const { fetchApi } = useApi()
-const router = useRouter()
 
 const isAdmin = computed(() => role.value === 'Admin')
 const isTeacher = computed(() => role.value === 'Teacher')
@@ -231,7 +230,7 @@ onMounted(loadData)
                   <thead>
                     <tr>
                       <th>STT</th>
-                      <th>Buổi</th>
+                      <!-- <th>Buổi</th> -->
                       <th>Ngày Học</th>
                       <th>Phòng</th>
                       <th>Trạng Thái</th>
@@ -241,8 +240,8 @@ onMounted(loadData)
                   </thead>
                   <tbody>
                     <tr v-for="(sched, index) in teacherClassDetails[cls.id].schedules" :key="sched.id">
-                      <td class="text-muted">{{ index + 1 }}</td>
-                      <td><span class="session-badge">Buổi {{ sched.attendance_count }}</span></td>
+                      <td class="text-muted">{{ Number(index) + 1 }}</td>
+                      <!-- <td><span class="session-badge">Buổi {{ sched.attendance_count }}</span></td> -->
                       <td>{{ fmt(sched.start_time) }}</td>
                       <td><span class="room-tag">{{ sched.room }}</span></td>
                       <td>
